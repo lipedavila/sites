@@ -62,6 +62,7 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            visibility: hidden;
         }
 
         input[type="text"] {
@@ -114,118 +115,125 @@
             100% { width: 100%; }
         }
 
-        #loading-text {
-            visibility: hidden;
-            text-align: center;
-            font-size: 20px;
-            color: #4CAF50;
-            margin-top: 10px;
+        #startButton {
+            padding: 10px 20px;
+            background-color: #CBA3D5;
+            color: #4A2C40;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #startButton:hover {
+            background-color: #A884B4;
         }
     </style>
 </head>
 <body>
-<h1><img src="https://img1.picmix.com/output/stamp/normal/0/7/6/9/1309670_1c546.gif" alt="Gatinho Mágico" style="vertical-align:middle;"> Chat com gatinho Mágico!</h1>
+    <button id="startButton">Oiiee!</button>
+    <div id="chatContainer" style="display: none;">
+        <h1>Chat com gatinho Mágico!</h1>
+        <p>Converse à vontade com este gatinho fofo, sábio e discreto!</p>
+        <div id="chat"></div>
+        <form id="bettergpt-form">
+            <input type="text" id="question" placeholder="">
+            <input type="submit" value="Enviar">
+        </form>
+        <div id="loading"></div>
+        <audio id="meowSound" src="https://sound-effects-media.bbcrewind.co.uk/mp3/07045200.mp3?download&rename=BBC_Cats-And-K_07045200"></audio>
+    </div>
 
-<p>Converse à vontade com este gatinho fofo, sábio e discreto!</p>
-<div id="chat"></div>
-<form id="bettergpt-form">
-    <input type="text" id="question" placeholder="Sua vez!">
-    <input type="submit" value="Enviar">
-</form>
-<div id="loading"></div>
-<p id="loading-text">⏳⏳⏳⏳</p>
+    <script>
+        const startButton = document.querySelector('#startButton');
+        const chatContainer = document.querySelector('#chatContainer');
+        const form = document.querySelector('#bettergpt-form');
+        const chatDiv = document.querySelector('#chat');
+        const meowSound = document.querySelector('#meowSound');
+        const loadingDiv = document.querySelector('#loading');
 
-<audio id="meowSound" src="https://sound-effects-media.bbcrewind.co.uk/mp3/07045200.mp3?download&rename=BBC_Cats-And-K_07045200" preload="auto"></audio>
+        let conversationHistory = [];
 
-<script>
-const form = document.querySelector('#bettergpt-form');
-const chatDiv = document.querySelector('#chat');
-const loadingDiv = document.querySelector('#loading');
-const loadingText = document.querySelector('#loading-text');
-const meowSound = document.querySelector('#meowSound');
+        async function fetchRealTime() {
+            const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
+            const data = await response.json();
+            return data.datetime;
+        }
 
-let conversationHistory = [];
+        function fetchLocalTime() {
+            return new Date().toISOString();
+        }
 
-async function fetchRealTime() {
-  const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
-  const data = await response.json();
-  return data.datetime;
-}
+        async function startConversation() {
+            const HoraReal = await fetchRealTime();
+            const HoraLocal = fetchLocalTime();
+            const formattedRealTime = new Date(HoraReal).toLocaleString();
+            const formattedLocalTime = new Date(HoraLocal).toLocaleString();
+            const HorarioProcessado = `Olá, agora é ${formattedLocalTime}.`;
 
-function fetchLocalTime() {
-  return new Date().toISOString();
-}
+            const greeting = `Você está sendo o gatinho "Gatinho Mial" que fala com uma pessoa em um chat. Usando ${HorarioProcessado} 
+            por favor, me diga a seguir, apenas Oi, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite") 
+            meu amiguinho humano! (gpt escolhe o que o gatinho personagem deve dizer a seguir para ser fofo e indicar à pessoa que a pessoa pode sentir-se livre para conversar com o gatinho mais (UAL!)&(Mial!) do (jeito fofo de dizer "tudo mesmo")))"`;
+            sendMessage(greeting, true);
+        }
 
-async function startConversation() {
-  const HoraReal = await fetchRealTime();
-  const HoraLocal = fetchLocalTime();
-  const formattedRealTime = new Date(HoraReal).toLocaleString();
-  const formattedLocalTime = new Date(HoraLocal).toLocaleString();
-  const HorarioProcessado = `Olá, agora é ${formattedLocalTime}.`;
+        function sendMessage(question, silent=false) {
+            conversationHistory.push({role: 'user', content: question});
+            if (!silent) {
+                const userMessage = document.createElement('div');
+                userMessage.textContent = question;
+                userMessage.className = 'user-message';
+                chatDiv.appendChild(userMessage);
+            }
+            
+            loadingDiv.style.visibility = "visible";
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://free.churchless.tech/v1/chat/completions');
+            xhr.send(JSON.stringify({ 'model': 'gpt-3.5-turbo', 'messages': conversationHistory}));
+            
+            xhr.onload = function() {
+                if (xhr.status != 200) {
+                    alert(`Error ${xhr.status}: ${xhr.statusText}`);
+                } else {
+                    var response = JSON.parse(xhr.response);
+                    conversationHistory.push({role: 'assistant', content: response.choices[0].message.content});
+                    const assistantMessage = document.createElement('div');
+                    assistantMessage.textContent = response.choices[0].message.content;
+                    assistantMessage.className = 'assistant-message';
+                    chatDiv.appendChild(assistantMessage);
+                    meowSound.play();
+                    chatDiv.scrollTop = chatDiv.scrollHeight;
+                    form.style.display = "flex";
+                }
+                form.reset();
+                loadingDiv.style.visibility = "hidden";
+            };
+            
+            xhr.onerror = function() {
+                alert("Request failed");
+                loadingDiv.style.visibility = "hidden";
+            };
+        }
 
-  const greeting = `Você está sendo o gatinho "Gatinho Mial" que fala com uma pessoa em um chat. Usando ${HorarioProcessado} 
-por favor, me diga a seguir, apenas Oi, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite") 
-meu súdito humano! (gpt escolhe o que o gatinho personagem deve dizer a seguir para ser fofo e indicar à pessoa que a pessoa pode sentir-se livre para conversar com o gatinho mais (UAL!)&(Mial!) do (jeito fofo de dizer "tudo mesmo")))"`;
-  sendMessage(greeting, true);
-}
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const question = document.querySelector('#question').value;
+            if (!question) {
+                alert('Ops, está em branco!');
+                return;
+            }
+            sendMessage(question);
+        });
 
-function sendMessage(question, silent=false) {
-  conversationHistory.push({role: 'user', content: question});
-  if (!silent) {
-    const userMessage = document.createElement('div');
-    userMessage.textContent = question;
-    userMessage.className = 'user-message';
-    chatDiv.appendChild(userMessage);
-    chatDiv.scrollTop = chatDiv.scrollHeight; // Adicionado para rolar o chat automaticamente
-  }
-  loadingDiv.style.visibility = "visible";
-  loadingText.style.visibility = "visible";
-  form.style.display = "none";
-  
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://free.churchless.tech/v1/chat/completions');
-  xhr.send(JSON.stringify({ 'model': 'gpt-3.5-turbo', 'messages': conversationHistory}));
-  
-  xhr.onload = function() {
-    if (xhr.status != 200) {
-      alert(`Error ${xhr.status}: ${xhr.statusText}`);
-    } else {
-      var response = JSON.parse(xhr.response);
-      conversationHistory.push({role: 'assistant', content: response.choices[0].message.content});
-      const assistantMessage = document.createElement('div');
-      assistantMessage.textContent = response.choices[0].message.content;
-      assistantMessage.className = 'assistant-message';
-      chatDiv.appendChild(assistantMessage);
-      meowSound.play();
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-      form.style.display = "flex";
-    }
-    form.reset();
-    loadingDiv.style.visibility = "hidden";
-    loadingText.style.visibility = "hidden";
-  };
-  
-  xhr.onerror = function() {
-    alert("Request failed");
-    loadingDiv.style.visibility = "hidden";
-    loadingText.style.visibility = "hidden";
-    form.style.display = "flex";
-  };
-}
-
-form.addEventListener('submit', function(event) {
-  event.preventDefault();
-  const question = document.querySelector('#question').value;
-  if (!question) {
-    alert('Por favor, dê sua resposta.');
-    return;
-  }
-  sendMessage(question);
-  chatDiv.scrollTop = chatDiv.scrollHeight;  // Adicionado para rolar o chat automaticamente após o envio da resposta
-});
-window.onload = function() {
-    setTimeout(startConversation, 1000);  // Espera 1 segundo antes de iniciar a conversa
-};
-</script>
+        startButton.addEventListener('click', function() {
+            startButton.style.display = 'none';
+            chatContainer.style.display = 'block';
+            startConversation();
+        });
+    </script>
 </body>
 </html>
