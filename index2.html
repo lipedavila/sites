@@ -148,7 +148,7 @@ const meowSound = document.querySelector('#meowSound');
 let conversationHistory = [];
 
 async function fetchRealTime() {
-  const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
+  const response = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
   const data = await response.json();
   return data.datetime;
 }
