@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -146,22 +147,46 @@ const meowSound = document.querySelector('#meowSound');
 
 let conversationHistory = [];
 
+async function fetchRealTime() {
+  const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
+  const data = await response.json();
+  return data.datetime;
+}
+
 function fetchLocalTime() {
   return new Date().toISOString();
 }
 
-function startConversation() {
+async function startConversation() {
+  const HoraReal = await fetchRealTime();
   const HoraLocal = fetchLocalTime();
+  const formattedRealTime = new Date(HoraReal).toLocaleString();
   const formattedLocalTime = new Date(HoraLocal).toLocaleString();
   const HorarioProcessado = `Olá, agora é ${formattedLocalTime}.`;
 
-  conversationHistory.push({role: 'user', content: 'Primeira mensagem do usuário'});
-  conversationHistory.push({role: 'assistant', content: `Você está sendo o gatinho "Gatinho Mial" que fala com uma pessoa em um chat. Usando ${HorarioProcessado} por favor, me diga a seguir, apenas Oi, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite") meu súdito humano! (gpt escolhe o que o gatinho personagem deve dizer a seguir para ser fofo e indicar à pessoa que a pessoa pode sentir-se livre para conversar com o gatinho mais (UAL!)&(Mial!) do (jeito fofo de dizer "tudo mesmo"))`});
+  const greeting = `Você está sendo o gatinho "Gatinho Mial" que fala com uma pessoa em um chat. Usando ${HorarioProcessado} 
+por favor, me diga a seguir, apenas Oi, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite") 
+meu súdito humano! (gpt escolhe o que o gatinho personagem deve dizer a seguir para ser fofo e indicar à pessoa que a pessoa pode sentir-se livre para conversar com o gatinho mais (UAL!)&(Mial!) do (jeito fofo de dizer "tudo mesmo")))"`;
+  sendMessage(greeting, true);
+}
 
+function sendMessage(question, silent=false) {
+  conversationHistory.push({role: 'user', content: question});
+  if (!silent) {
+    const userMessage = document.createElement('div');
+    userMessage.textContent = question;
+    userMessage.className = 'user-message';
+    chatDiv.appendChild(userMessage);
+    chatDiv.scrollTop = chatDiv.scrollHeight; // Adicionado para rolar o chat automaticamente
+  }
+  loadingDiv.style.visibility = "visible";
+  loadingText.style.visibility = "visible";
+  form.style.display = "none";
+  
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'https://free.churchless.tech/v1/chat/completions');
   xhr.send(JSON.stringify({ 'model': 'gpt-3.5-turbo', 'messages': conversationHistory}));
-
+  
   xhr.onload = function() {
     if (xhr.status != 200) {
       alert(`Error ${xhr.status}: ${xhr.statusText}`);
@@ -196,9 +221,10 @@ form.addEventListener('submit', function(event) {
     alert('Por favor, dê sua resposta.');
     return;
   }
-  startConversation();
+  sendMessage(question);
   chatDiv.scrollTop = chatDiv.scrollHeight;  // Adicionado para rolar o chat automaticamente após o envio da resposta
 });
+startConversation();
 
 </script>
 </body>
