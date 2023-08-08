@@ -156,7 +156,6 @@ async function fetchRealTime() {
 function fetchLocalTime() {
   return new Date().toISOString();
 }
-
 async function startConversation() {
   const HoraReal = await fetchRealTime();
   const HoraLocal = fetchLocalTime();
