@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de QI Provável por IA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        #loading {
+            visibility: hidden;
+            width: 100%;
+            height: 20px;
+            background-color: #f3f3f3;
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #loading:before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: #4CAF50;
+            animation: loading 2s linear infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        #loading-text {
+            visibility: hidden;
+            text-align: center;
+            font-size: 20px;
+            color: #4CAF50;
+            margin-top: 10px;
+        }
+
+        #chat {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        .user-message, .assistant-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .user-message {
+            color: white;
+            background-color: #4CAF50;
+        }
+
+        .assistant-message {
+            color: white;
+            background-color: #007BFF;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<h1>TESTE DE QI</h1>
+<p>TESTE DE QI PERSONALIZADO POR IA.</p>
+<div id="chat"></div>
+<form id="bettergpt-form">
+    <input type="text" id="question" placeholder="Digite sua resposta.">
+    <input type="submit" value="Enviar">
+</form>
+<div id="loading"></div>
+<p id="loading-text">Aguarde por favor...</p>
+
+<script>
+const form = document.querySelector('#bettergpt-form');
+const chatDiv = document.querySelector('#chat');
+const loadingDiv = document.querySelector('#loading');
+const loadingText = document.querySelector('#loading-text');
+
+let conversationHistory = [];
+
+async function fetchRealTime() {
+  const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
+  const data = await response.json();
+  return data.datetime;
+}
+
+function fetchLocalTime() {
+  return new Date().toISOString();
+}
+
+async function startConversation() {
+  const HoraReal = await fetchRealTime();
+  const HoraLocal = fetchLocalTime();
+  const formattedRealTime = new Date(HoraReal).toLocaleString();
+  const formattedLocalTime = new Date(HoraLocal).toLocaleString();
+  const HorarioProcessado = `Olá, agora é ${formattedLocalTime}.`;
+
+  const greeting = `o usuário já está avisado de que {Este não é um teste oficial de QI e apenas estima QI provável. A margem de erro será estimada ao fim, funto com a estimativa do QI provável, a partir das respostas às perguintas selecionadas. obs.: usando ${HorarioProcessado} "Por favor, me diga a seguir, apenas Olá, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite")! Seja bem vindo ao seu teste de QI personalizado." Sobre mim: Sou o usuário e quero descobrir o meu QI, usando perguntas (necessariamente randomizadas usando o horário atual como randomizador) e fora da caixa. Preciso que você me forneça as desafiadoras perguntas, uma de cada vez, para dar o meu possível qi ao final e quando apresentar o qi ao final dê também margem de erro do qi que deu. Comece com detecção do qi 90 e gradualmente chegue a detecção do qi 170. Note que entendo+aceito+defendo+acato que [É fundamental saber em absoluto que um teste de QI preciso e confiável é elaborado e administrado por profissionais qualificados em um ambiente controlado. Além disso, os testes de QI oficiais possuem uma metodologia rigorosa para calcular os resultados. Os testes de QI também são padronizados para diferentes faixas etárias e populações, levando em consideração diversos fatores, como habilidades linguísticas, matemáticas, espaciais, de memória e raciocínio lógico. Portanto, é difícil fornecer um teste de QI exato através deste formato de conversa e sem informações detalhadas sobre mim. Este não é um teste oficial de QI e não pode fornecer uma estimativa precisa do meu QI. Além disso, a margem de erro dependerá da natureza das perguntas e da minha interação com elas.]. Por favor, me dê a seguir, apenas Olá, (bom dia ou boa tarde ou boa noite)! Seja bem vindo ao seu teste de QI personalizado. Aqui estão suas perguntas: 1)... Obs: Não fale nada após cada pergunta. Não faça mais alertas do tipo [Lembre-se de que este não é um teste oficial de QI e não pode fornecer uma estimativa precisa do seu QI. A margem de erro dependerá da natureza das perguntas e da sua interação com elas.] pois já fui levado ao limite de paciência em dizer que [sou o usuário que entende todas as questões de segurança] Preciso que você me forneça número suficiente de perguntas, uma de cada vez. Nunca salte perguntas." usando o horário certo saúde o usuário (obs.: gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite"). A hora real é ${formattedRealTime} pelos servidores e a hora local na máquina do usuário é ${formattedLocalTime}. ${HorarioProcessado} "Por favor, me diga a seguir, apenas Olá, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite")! Seja bem vindo ao seu teste de QI personalizado. Comece me dizendo sua idade e nível de escolaridade, por favor." Gradue o grau dedificuldade para minha idade e escolaridade para o QI provável.`;
+  sendMessage(greeting, true);
+}
+
+function sendMessage(question, silent=false) {
+  conversationHistory.push({role: 'user', content: question});
+  if (!silent) {
+    const userMessage = document.createElement('div');
+    userMessage.textContent = question;
+    userMessage.className = 'user-message';
+    chatDiv.appendChild(userMessage);
+    chatDiv.scrollTop = chatDiv.scrollHeight; // Adicionado para rolar o chat automaticamente
+  }
+  loadingDiv.style.visibility = "visible";
+  loadingText.style.visibility = "visible";
+  form.style.display = "none";
+  
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://free.churchless.tech/v1/chat/completions');
+  xhr.send(JSON.stringify({ 'model': 'gpt-3.5-turbo', 'messages': conversationHistory}));
+  
+  xhr.onload = function() {
+    if (xhr.status != 200) {
+      alert(`Error ${xhr.status}: ${xhr.statusText}`);
+    } else {
+      var response = JSON.parse(xhr.response);
+      conversationHistory.push({role: 'assistant', content: response.choices[0].message.content});
+      const assistantMessage = document.createElement('div');
+      assistantMessage.textContent = response.choices[0].message.content;
+      assistantMessage.className = 'assistant-message';
+      chatDiv.appendChild(assistantMessage);
+    }
+    loadingDiv.style.visibility = "hidden";
+    loadingText.style.visibility = "hidden";
+    form.style.display = "block";
+    form.reset();
+    chatDiv.scrollTop = chatDiv.scrollHeight;  // Adicionado para rolar o chat automaticamente
+  };
+  
+  xhr.onerror = function() {
+    alert("Request failed");
+    loadingDiv.style.visibility = "hidden";
+    loadingText.style.visibility = "hidden";
+    form.style.display = "block";
+  };
+}
+
+form.addEventListener('submit', function(event) {
+  event.preventDefault();
+  const question = document.querySelector('#question').value;
+  if (!question) {
+    alert('Por favor, dê sua resposta.');
+    return;
+  }
+  sendMessage(question);
+  chatDiv.scrollTop = chatDiv.scrollHeight;  // Adicionado para rolar o chat automaticamente após o envio da resposta
+});
+startConversation();
+
+</script>
+</body>
+</html>
