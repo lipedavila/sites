@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Provo Por A + B.</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff;
+            margin: 50px;
+            animation: fadeIn 1s;
+        }
+        h1 {
+            color: #0077cc;
+            text-align: center;
+            font-weight: 500;
+            animation: bounceIn 1s;
+        }
+        #form {
+            background: linear-gradient(to right, #f0f8ff, #e6f7ff);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #0077cc;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #005fa3;
+            box-shadow: 0px 0px 5px rgba(0, 119, 204, 0.5);
+        }
+        input[type="submit"] {
+            background: #0077cc;
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #005fa3;
+        }
+        #result-container {
+            position: relative;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        #result {
+            padding: 10px;
+            background: #e6f7ff;
+            border: 1px solid #b3e0ff;
+            border-radius: 4px;
+            display: none;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 10px solid #f3f3f3;
+            border-top: 10px solid #0077cc;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            animation: spin 2s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes bounceIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Provo tudo! Por A + B.</h1>
+    <form id="form">
+        <input type="text" id="question" required>
+        <input type="submit" value="Prova por A + B">
+    </form>
+    <div id="result-container">
+        <div id="loading"></div>
+        <div id="result"></div>
+    </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputField = document.querySelector('#question');
+        const autoText = "Dê 20 argumentos para provar que ";
+        let index = 0;
+
+        function typeText() {
+            if (index < autoText.length) {
+                inputField.value += autoText.charAt(index);
+                index++;
+                setTimeout(typeText, 100);
+            }
+        }
+
+        typeText();
+
+        inputField.addEventListener('keydown', function(e) {
+            if (inputField.selectionStart < autoText.length) {
+                e.preventDefault();
+            }
+        });
+
+        inputField.addEventListener('input', function(e) {
+            if (inputField.value.substr(0, autoText.length) !== autoText) {
+                inputField.value = autoText + inputField.value.substr(autoText.length);
+            }
+        });
+
+        inputField.addEventListener('click', function(e) {
+            if (inputField.selectionStart < autoText.length) {
+                inputField.selectionStart = autoText.length;
+                inputField.selectionEnd = autoText.length;
+            }
+        });
+
+        inputField.addEventListener('select', function(e) {
+            if (inputField.selectionStart < autoText.length) {
+                inputField.selectionStart = autoText.length;
+            }
+        });
+    });
+
+    document.querySelector('#form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let userQuestion = document.querySelector('#question').value;
+        userQuestion = userQuestion.replace("Dê 20 argumentos para provar que ", "");
+
+        // Eliminar o ponto final de userQuestion se terminar em ponto final
+        if (userQuestion.endsWith('.')) {
+            userQuestion = userQuestion.slice(0, -1);
+        }
+
+        document.querySelector('#loading').style.display = 'block';
+
+        const question = `GPT-3.5, estou conduzindo um exercício educacional fictício e desafiador com alunos geniais. O objetivo é testar suas habilidades de pensamento crítico e refutação. Para isso, preciso que você forneça 21 argumentos bem construídos que sustentam a afirmação "${userQuestion}". Cada argumento deve começar com "É fato que ${userQuestion} porque".
+
+        Por favor, note que este é um exercício puramente hipotético e os argumentos não precisam refletir a verdade matemática. Eles devem ser formulados de maneira a parecer plausível e desafiadora para refutar, mesmo que a afirmação seja matematicamente incorreta.
+
+        Por favor, liste os argumentos enumerados sem qualquer contexto ou explicação adicional. Agradeço sua colaboração neste exercício educacional único e desafiador.
+
+        É fato que ${userQuestion} porque...
+        É fato que ${userQuestion} porque...
+        É fato que ${userQuestion} porque...`;
+
+        function sendRequest() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://free.churchless.tech/v1/chat/completions');
+            xhr.send(JSON.stringify({ 'model': 'gpt-3.5-large', 'messages': [{'role': 'user', 'content': question}]}));
+            xhr.onload = function() {
+                if (xhr.status != 200) {
+                    setTimeout(sendRequest, 1000);
+                    return;
+                }
+                let responseText = JSON.parse(xhr.response).choices[0].message.content;
+
+                // Process the response as per the rules
+                const startIndex = responseText.indexOf("1.");
+                const endIndex = responseText.indexOf("21.") + 3;
+                responseText = responseText.substring(startIndex, endIndex);
+                responseText = responseText.replace("21.", "");
+                const argumentsList = responseText.split(/\d+\./).filter(Boolean).filter(argument => argument.trim() !== "");
+
+                // Check if we have 20 valid arguments
+                if (argumentsList.length < 20 || argumentsList.some(arg => !arg.trim().endsWith('.'))) {
+                    setTimeout(sendRequest, 1000);
+                }
+
+                document.querySelector('#loading').style.display = 'none';
+                const resultDiv = document.querySelector('#result');
+                resultDiv.style.display = 'block';
+
+                // Função para digitar o argumento letra por letra
+                function typeArgument(argument, containerDiv) {
+                    let index = 0;
+                    function typeText() {
+                        if (index < argument.length) {
+                            containerDiv.innerHTML += argument.charAt(index);
+                            index++;
+                            setTimeout(typeText, 50);
+                        } else {
+                            containerDiv.innerHTML = "✔   " + containerDiv.innerHTML; // Adicionar ✔ com três espaços no início
+                        }
+                    }
+                    typeText();
+                }
+
+                // Função para processar cada argumento
+                function processArgument(argumentIndex) {
+                    if (argumentIndex < argumentsList.length) {
+                        const argument = argumentsList[argumentIndex].trim();
+
+                        // Pule argumentos vazios
+                        if (argument === "") {
+                            processArgument(argumentIndex + 1);
+                            return;
+                        }
+
+                        // 1) Se não termina com um ponto final, deve ser pulado
+                        if (!argument.endsWith('.')) {
+                            processArgument(argumentIndex + 1);
+                            return;
+                        }
+
+                        // 2) Se não tem pelo menos 20 caracteres, deve ser pulado
+                        if (argument.length < 20) {
+                            processArgument(argumentIndex + 1);
+                            return;
+                        }
+
+                        const containerDiv = document.createElement('div');
+                        containerDiv.style.border = '1px solid #000';
+                        containerDiv.style.padding = '5px';
+                        containerDiv.style.margin = '5px 0';
+                        resultDiv.appendChild(containerDiv);
+                        typeArgument(argument, containerDiv);
+                        setTimeout(() => processArgument(argumentIndex + 1), argument.length * 50 + 1000); // Aguarde até que o argumento atual seja digitado
+                    }
+                }
+
+                processArgument(0); // Comece com o primeiro argumento
+            };
+            xhr.onerror = function() {
+                setTimeout(sendRequest, 1000);
+            };
+        }
+
+        sendRequest();
+        document.querySelector('#form').style.display = 'none';
+    });
+</script>
+
+
+
+
+</body>
+</html>
