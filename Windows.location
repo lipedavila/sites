@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Informações de window.location</title>
+</head>
+<body>
+
+  <h1>Informações de window.location</h1>
+  <div id="locationInfo"></div>
+
+  <script>
+    window.addEventListener('load', function() {
+      const locationInfoDiv = document.getElementById('locationInfo');
+      const properties = ['href', 'protocol', 'host', 'hostname', 'port', 'pathname', 'search', 'hash', 'origin'];
+      
+      let info = '';
+      properties.forEach((property) => {
+        info += `${property}: ${window.location[property]}<br>`;
+      });
+
+      locationInfoDiv.innerHTML = info;
+    });
+  </script>
+
+</body>
+</html>
