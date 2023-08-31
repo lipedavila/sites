@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TotalQuery Search API</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        #results, #errorMural {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TotalQuery Search API</h1>
+
+    <form id="searchForm">
+        <label for="query">Search Query:</label>
+        <input type="text" id="query" name="query">
+        
+        <label for="engines">Select Engines:</label>
+        <select id="engines" multiple>
+            <option value="google">Google</option>
+            <option value="bing">Bing</option>
+        </select>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div id="results"></div>
+    <div id="errorMural"></div>
+
+    <script>
+        $(document).ready(function() {
+            $("#searchForm").submit(function(event) {
+                event.preventDefault();
+                const query = $("#query").val();
+                const engines = $("#engines").val();
+
+                $("#results").empty();
+                $("#errorMural").empty();
+
+                $.ajax({
+                    url: "https://plugin.totalquery.co/search",
+                    type: 'GET',
+                    data: {
+                        q: query,
+                        engines: engines.join(","),
+                    },
+                    success: function(response) {
+                        response.results.forEach(function(result) {
+                            $("#results").append(`
+                                <div>
+                                    <h2>${result.title}</h2>
+                                    <a href="${result.link}" target="_blank">${result.link}</a>
+                                    <p>${result.textContent}</p>
+                                    <button onclick="browse('${result.link}')">Browse</button>
+                                </div>
+                            `);
+                        });
+                    },
+                    error: function(error) {
+                        $("#errorMural").append(`
+                            <div>
+                                <h2>Error</h2>
+                                <p>${JSON.stringify(error)}</p>
+                            </div>
+                        `);
+                    }
+                });
+            });
+        });
+
+        function browse(url) {
+            $.ajax({
+                url: "https://plugin.totalquery.co/browse",
+                type: 'GET',
+                data: { url: url },
+                success: function(response) {
+                    $("#results").empty();
+                    $("#results").append(`
+                        <div>
+                            <h2>${response.title}</h2>
+                            <p>${response.textContent}</p>
+                        </div>
+                    `);
+                },
+                error: function(error) {
+                    $("#errorMural").append(`
+                        <div>
+                            <h2>Error</h2>
+                            <p>${JSON.stringify(error)}</p>
+                        </div>
+                    `);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
