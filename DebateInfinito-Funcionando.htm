@@ -29,9 +29,9 @@
 
         function sendRequest(character1, character2, theme, callback) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://ai.fakeopen.com/v1/chat/completions');
+            xhr.open('POST', 'https://ai.fakeopen.com/v1/chat/completions'); // URL atualizada
             xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.setRequestHeader('Authorization', 'Bearer pk-this-is-a-real-free-pool-token-for-everyone'); // Add this
+            xhr.setRequestHeader('Authorization', 'Bearer pk-this-is-a-real-free-pool-token-for-everyone'); 
             const requestBody = {
                 'model': 'gpt-3.5-large',
                 'messages': [
