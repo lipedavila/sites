@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ChatGPT with Automatic Pool Token  PLUSSSSSSSSSS</title>
+  <title>ChatGPT with Automatic Pool Token</title>
 </head>
 <body>
 
-<h1>ChatGPT with Automatic Pool Token Pluss</h1>
+<h1>ChatGPT with Automatic Pool Token</h1>
 
 <form id="chat-form">
   <input type="text" id="user-input" placeholder="Type your question" required>
@@ -14,15 +14,13 @@
 
 <div id="chat-output"></div>
 
-  
 <script>
   async function getPoolToken() {
-    // Obtenha o token do fakeopen
-    const response = await fetch('https://corsproxy.io/?https://ai.fakeopen.com/token', {
+    const response = await fetch('https://ai.fakeopen.com/pool', {
       method: 'GET'
     });
     const data = await response.json();
-    return data.token; // Substitua por como o token é retornado
+    return data.token;
   }
 
   async function fetchChatResponse(token, question) {
@@ -31,7 +29,7 @@
       prompt: question,
       max_tokens: 100
     };
-    const response = await fetch('https://corsproxy.io/?https://api.openai.com/v1/engines/davinci-codex/completions', {
+    const response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -59,15 +57,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
