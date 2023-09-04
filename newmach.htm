@@ -17,7 +17,7 @@
 <script>
   async function getPoolToken() {
     try {
-      const response = await fetch('https://ai.fakeopen.com/pool', {
+      const response = await fetch('https://corsproxy.io/?https://ai.fakeopen.com/pool', {
         method: 'GET'
       });
       if(response.ok) {
@@ -38,7 +38,7 @@
         prompt: question,
         max_tokens: 100
       };
-      const response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+      const response = await fetch('https://corsproxy.io/?https://api.openai.com/v1/engines/davinci-codex/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
