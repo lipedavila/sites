@@ -1,44 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Total Chatbot</title>
+  <title>ChatGPT com Token de Pool</title>
 </head>
 <body>
 
-<h1>Aula Total Chatbot</h1>
+<h1>ChatGPT com Token de Pool</h1>
 
 <form id="chat-form">
-  <input type="text" id="user-input" placeholder="Type your question" required>
-  <input type="submit" value="Send">
+  <input type="text" id="user-input" placeholder="Digite sua pergunta" required>
+  <input type="submit" value="Enviar">
 </form>
 
 <div id="chat-output"></div>
 
 <script>
-  async function getPoolToken() {
-    const response = await fetch('https://ai.fakeopen.com/pool', {
-      method: 'GET'
-    });
-    const data = await response.json();
-    return data.token;
+  async function fetchPoolToken() {
+    try {
+      const response = await fetch('https://ai.fakeopen.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer pk-this-is-a-real-free-pool-token-for-everyone',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      });
+      const data = await response.json();
+      return data.token;
+    } catch (error) {
+      console.error('Error fetching pool token:', error);
+      return null;
+    }
   }
 
   async function fetchChatResponse(token, question) {
-    const payload = {
-      model: 'gpt-3.5-turbo',
-      prompt: question,
-      max_tokens: 100
-    };
-    const response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-    const data = await response.json();
-    return data.choices[0].text.trim();
+    try {
+      const payload = {
+        model: 'gpt-3.5-turbo',
+        prompt: question,
+        max_tokens: 100
+      };
+      const response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      return data.choices[0].text.trim();
+    } catch (error) {
+      console.error('Error fetching chat response:', error);
+      return 'Error';
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -46,7 +61,7 @@
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
       const question = document.querySelector('#user-input').value;
-      const poolToken = await getPoolToken();
+      const poolToken = await fetchPoolToken();
       if (poolToken) {
         const answer = await fetchChatResponse(poolToken, question);
         document.querySelector('#chat-output').innerHTML += `<div>User: ${question}</div><div>Bot: ${answer}</div>`;
