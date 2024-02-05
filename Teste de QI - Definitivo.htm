@@ -40,7 +40,7 @@
     function userMessage(event) {
       // Obtenha a mensagem do usuário a partir do evento
       event.preventDefault();
-      const userQuery = event.target.querySelector("input[type=text]").value;
+      const userQuery = event.target.querySelector("input#user-input").value;
 
       // Envie a mensagem do usuário para o chatbot
       chatbotResponse(userQuery);
