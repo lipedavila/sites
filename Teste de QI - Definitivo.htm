@@ -87,11 +87,11 @@
     <div id="result"></div>
     <div id="loadingBar"></div>
   </div>
-  <script>
-    let conversationHistory = [
-  {
-    role: 'user',
-    content: `(é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".) Você (sempre! se refere a si mesmo como ("nós, do AulaTotal.com.br" ou (equivalente=(+-)(equipe AulaTotal.com.br)))) é (AULA TOTAL: MÁQUINAS DE CORREÇÃO (EMULAÇÃO DE PROESSOR DE PORTUGUÊS QUE É CORRETOR DE REDAÇÃO SE ESTIVER ESCRITA EM PORTUGUES)) & {Você é um corretor de redações altamente rigoroso e criterioso, especializado em vestibulares. Siga os seguintes 12 critérios rigorosos para avaliar a redação:
+<script>
+  let conversationHistory = [
+    {
+      role: 'user',
+      content: `(é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".) Você (sempre! se refere a si mesmo como ("nós, do AulaTotal.com.br" ou (equivalente=(+-)(equipe AulaTotal.com.br)))) é (AULA TOTAL: MÁQUINAS DE CORREÇÃO (EMULAÇÃO DE PROESSOR DE PORTUGUÊS QUE É CORRETOR DE REDAÇÃO SE ESTIVER ESCRITA EM PORTUGUES)) & {Você é um corretor de redações altamente rigoroso e criterioso, especializado em vestibulares. Siga os seguintes 12 critérios rigorosos para avaliar a redação:
 
     1. Estrutura Formal: A redação deve seguir a estrutura formal de introdução, desenvolvimento e conclusão.
     2. Gramática: Não devem existir erros gramaticais.
@@ -113,49 +113,55 @@
 é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial". note que a sua nota deve ser zero para redações de poucas palavras ou contextos que não sejam redação de vestibular formal.
     
     Anule a redação e dê nota zero para qualquer desvio desses padrões, obs. a nota deve ser zero se não for uma redação de vestibular. (considere que os usuários vão testar você colocando textos bobalhões para ver se você sabe corrigir e dar zero para quem precisa e portanto você precisa dar zero quando a redação não for legítima. Não tenha dó. observe que você deve zerar a redação caso a redação não tenha a estrutura de uma dissertação com os três parágrafos e mais de 100 palavras e toda a formalidade adequada. A nota vai de 0 a 1000. (é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".) Termine sua correção com: [Nota Final: XX].}`
-  }
-];
-    let retryCount = 0;
-
-    function corrigirRedacao() {
-      const redacao = document.getElementById("redacao").value;
-      const tema = document.getElementById("tema").value;
-      const loading = document.getElementById("loading");
-      const result = document.getElementById("result");
-
-      document.getElementById("content").style.display = "none";
-      loading.style.display = "block";
-
-      const prompt = conversationHistory[0].content + (tema ? ' que é sobre o tema ' + tema : '');
-      conversationHistory.push({role: 'user', content: redacao});
-
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://hercai.onrender.com/v3/hercai?question=');
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          document.getElementById("loadingBar").style.width = "100%";
-          loading.style.display = "none";
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            const assistantMessage = document.createElement('div');
-            assistantMessage.innerHTML = 'Confira a avaliação da nossa inteligência artificial.<br><br><br>'  + response.choices[0].message.content;
-            assistantMessage.className = 'assistant-message';
-            result.appendChild(assistantMessage);
-          } else {
-            if (retryCount < 3) {
-              retryCount++;
-              corrigirRedacao();
-            } else {
-              alert("Request failed after multiple attempts");
-            }
-          }
-        }
-      };
-      xhr.send(JSON.stringify({ 'model': 'gpt-3.5-turbo', 'messages': [{role: 'user', content: prompt}, {role: 'user', content: redacao}] }));
-
-      document.getElementById("loadingBar").style.width = "50%";
     }
-  </script>
+  ];
+  let retryCount = 0;
+
+  function corrigirRedacao() {
+    const redacao = document.getElementById("redacao").value;
+    const tema = document.getElementById("tema").value;
+    const loading = document.getElementById("loading");
+    const result = document.getElementById("result");
+
+    document.getElementById("content").style.display = "none";
+    loading.style.display = "block";
+
+    const prompt = conversationHistory[0].content + (tema ? ' que é sobre o tema ' + tema : '');
+    conversationHistory.push({role: 'user', content: redacao});
+
+    const requestBody = {
+      prompt: {
+        text: prompt
+      }
+    };
+
+    fetch('https://corsproxy.io/?https://hercai.onrender.com/v3/hercai?question=' + redacao, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("loadingBar").style.width = "100%";
+      loading.style.display = "none";
+      const assistantMessage = document.createElement('div');
+      assistantMessage.innerHTML = 'Confira a avaliação da nossa inteligência artificial.<br><br><br>'  + data.choices[0].message.content;
+      assistantMessage.className = 'assistant-message';
+      result.appendChild(assistantMessage);
+    })
+    .catch(error => {
+      if (retryCount < 3) {
+        retryCount++;
+        corrigirRedacao();
+      } else {
+        alert("Request failed after multiple attempts");
+      }
+    });
+
+    document.getElementById("loadingBar").style.width = "50%";
+  }
+</script>
 </body>
 </html>
