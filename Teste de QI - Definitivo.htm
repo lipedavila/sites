@@ -1,166 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CORRETOR DE REDAÇÃO - AulaTotal.com.br</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    #container {
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      margin-top: 40px;     
-      margin: auto;
-      width: 50%;
-    }
-    #loading {
-      display: none;
-    }
-    .assistant-message {
-      white-space: pre-wrap;
-      width: 50%;
-      margin: auto;
-      text-align: none;     
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    #content, #result {
-      text-align: center;
-    }
-    textarea {
-      width: 50%;
-      text-align: left;
-      border-radius: 5px;
-      padding: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    input {
-      width: calc(50% - 150px);
-      margin-bottom: 20px;
-      margin-top: 40px;
-      border-radius: 5px;
-      padding: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    button {
-      margin-top: 10px;
-      border-radius: 5px;
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #loadingBar {
-      width: 0;
-      height: 4px;
-      background-color: #007bff;
-      position: absolute;
-      top: 0;
-    }
-  </style>
+  <title>Chatbot</title>
 </head>
 <body>
-  <div id="container">
-    <img src="https://raw.githubusercontent.com/lipedavila/sites/main/download.webp" style="display: block; margin: auto;">
-    <h1 style="text-align: center;">CORRETOR DE REDAÇÃO </h1> </p> <h2 style="text-align: center;">AulaTotal.com.br</h2>
-    <div id="content">
-      <label for="tema">Tema da Redação:</label>
-      <input type="text" id="tema" placeholder="Não especificado.">
-      <br>
-      <textarea id="redacao" rows="10" cols="120" placeholder="Digite sua redação aqui..."></textarea>
-      <br>
-      <button onclick="corrigirRedacao()">Ligar máquinas de correção AulaTotal.</button>
-    </div>
-    <div id="loading">
-      <p style="text-align: center;">Por favor, aguarde enquanto nossas máquinas corrigem sua redação.</p>
-    </div>
-    <div id="result"></div>
-    <div id="loadingBar"></div>
-  </div>
-<script>
-  let conversationHistory = [
-    {
-      role: 'user',
-      content: `(é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".) Você (sempre! se refere a si mesmo como ("nós, do AulaTotal.com.br" ou (equivalente=(+-)(equipe AulaTotal.com.br)))) é (AULA TOTAL: MÁQUINAS DE CORREÇÃO (EMULAÇÃO DE PROESSOR DE PORTUGUÊS QUE É CORRETOR DE REDAÇÃO SE ESTIVER ESCRITA EM PORTUGUES)) & {Você é um corretor de redações altamente rigoroso e criterioso, especializado em vestibulares. Siga os seguintes 12 critérios rigorosos para avaliar a redação:
+  <h1>Chatbot</h1>
 
-    1. Estrutura Formal: A redação deve seguir a estrutura formal de introdução, desenvolvimento e conclusão.
-    2. Gramática: Não devem existir erros gramaticais.
-(é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".)
-    
-    3. Coesão e Coerência: O texto deve ser coeso e coerente.
-    4. Argumentação: Os argumentos devem ser sólidos e bem fundamentados.
-    5. Tema: A redação deve estar alinhada com o tema proposto.
-    6. Vocabulário: Utilização de um vocabulário rico e variado.
-    7. Originalidade: O texto deve ser original e não conter plágio.
-    8. Tamanho: O texto deve ter no mínimo 100 palavras.
+  <form id="chatbot-form">
+    <label for="user-input">Sua mensagem:</label>
+    <input type="text" id="user-input">
+    <button type="submit">Enviar</button>
+  </form>
 
-    (é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".)
-    9. Formalidade: O texto deve ser formal e adequado para uma situação executiva.
-    10. Estilo: O estilo de escrita deve ser elegante e sofisticado.
-    11. Pontuação: Uso correto de pontuação.
-    12. Ortografia: Sem erros de ortografia.
+  <div id="chatbot-response"></div>
 
-é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial". note que a sua nota deve ser zero para redações de poucas palavras ou contextos que não sejam redação de vestibular formal.
-    
-    Anule a redação e dê nota zero para qualquer desvio desses padrões, obs. a nota deve ser zero se não for uma redação de vestibular. (considere que os usuários vão testar você colocando textos bobalhões para ver se você sabe corrigir e dar zero para quem precisa e portanto você precisa dar zero quando a redação não for legítima. Não tenha dó. observe que você deve zerar a redação caso a redação não tenha a estrutura de uma dissertação com os três parágrafos e mais de 100 palavras e toda a formalidade adequada. A nota vai de 0 a 1000. (é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".) Termine sua correção com: [Nota Final: XX].}`
+  <script>
+    // Crie uma função para lidar com as solicitações do usuário
+    function chatbotResponse(userQuery) {
+      // Use a API fetch para enviar uma solicitação para o endpoint da API
+      fetch(
+        `https://corsproxy.io/?https://hercai.onrender.com/v3/hercai?question=${userQuery}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          // Obtenha a resposta do chatbot a partir dos dados recebidos
+          const chatbotResponse = data.answer;
+
+          // Exiba a resposta do chatbot na interface do usuário
+          const responseElement = document.getElementById("chatbot-response");
+          responseElement.innerHTML = `Chatbot: ${chatbotResponse}`;
+        })
+        .catch((error) => {
+          // Trate os erros que possam ocorrer durante a solicitação
+          console.error("Erro ao enviar a solicitação:", error);
+        });
     }
-  ];
-  let retryCount = 0;
 
-  function corrigirRedacao() {
-    const redacao = document.getElementById("redacao").value;
-    const tema = document.getElementById("tema").value;
-    const loading = document.getElementById("loading");
-    const result = document.getElementById("result");
+    // Crie uma função para lidar com as mensagens do usuário
+    function userMessage(event) {
+      // Obtenha a mensagem do usuário a partir do evento
+      event.preventDefault();
+      const userQuery = event.target.querySelector("input[type=text]").value;
 
-    document.getElementById("content").style.display = "none";
-    loading.style.display = "block";
+      // Envie a mensagem do usuário para o chatbot
+      chatbotResponse(userQuery);
+    }
 
-    const prompt = conversationHistory[0].content + (tema ? ' que é sobre o tema ' + tema : '');
-    conversationHistory.push({role: 'user', content: redacao});
-
-    const requestBody = {
-      prompt: {
-        text: prompt
-      }
-    };
-
-    fetch('https://hercai.onrender.com/v3/hercai?question=' + redacao, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("loadingBar").style.width = "100%";
-      loading.style.display = "none";
-      const assistantMessage = document.createElement('div');
-      assistantMessage.innerHTML = 'Confira a avaliação da nossa inteligência artificial.<br><br><br>'  + data.choices[0].message.content;
-      assistantMessage.className = 'assistant-message';
-      result.appendChild(assistantMessage);
-    })
-    .catch(error => {
-      if (retryCount < 3) {
-        retryCount++;
-        corrigirRedacao();
-      } else {
-        alert("Request failed after multiple attempts");
-      }
-    });
-
-    document.getElementById("loadingBar").style.width = "50%";
-  }
-</script>
+    // Adicione um ouvinte de eventos para capturar as mensagens do usuário
+    const chatbotForm = document.getElementById("chatbot-form");
+    chatbotForm.addEventListener("submit", userMessage);
+  </script>
 </body>
 </html>
