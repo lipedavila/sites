@@ -1,54 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <title>Chatbot</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatBot AulaTotal Machines</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    #chatbot-image {
+      display: block;
+      margin: auto;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    #chatbot-form {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    #chatbot-form input[type="text"] {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    #chatbot-form button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    #chatbot-response {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #fff;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .message {
+      margin-bottom: 20px;
+    }
+    .user-message {
+      text-align: right;
+      color: blue;
+    }
+    .chatbot-message {
+      text-align: left;
+      color: green;
+    }
+    .loading-indicator {
+      background-color: red;
+      height: 5px;
+      width: 0%;
+      transition: width 2s, background-color 2s;
+    }
+  </style>
 </head>
 <body>
-  <h1>Chatbot</h1>
+  <img id="chatbot-image" src="https://raw.githubusercontent.com/lipedavila/sites/main/download.webp" alt="ChatBot Image">
+  <h1>ChatBot AulaTotal Machines</h1>
 
   <form id="chatbot-form">
-    <label for="user-input">Sua mensagem:</label>
-    <input type="text" id="user-input">
+    <input type="text" id="user-input" name="user-input" placeholder="Digite sua mensagem aqui..." required>
     <button type="submit">Enviar</button>
   </form>
 
   <div id="chatbot-response"></div>
+  <div class="loading-indicator"></div>
 
   <script>
-    // Crie uma função para lidar com as solicitações do usuário
-    function chatbotResponse(userQuery) {
-      // Use a API fetch para enviar uma solicitação para o endpoint da API
-      fetch(
-        `https://corsproxy.io/?https://hercai.onrender.com/v3/hercai?question=${userQuery}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          // Obtenha a resposta do chatbot a partir dos dados recebidos
-          const chatbotResponse = data.answer;
+    let chatHistory = [];
 
-          // Exiba a resposta do chatbot na interface do usuário
-          const responseElement = document.getElementById("chatbot-response");
-          responseElement.innerHTML = `Chatbot: ${chatbotResponse}`;
-        })
-        .catch((error) => {
-          // Trate os erros que possam ocorrer durante a solicitação
-          console.error("Erro ao enviar a solicitação:", error);
-        });
-    }
-
-    // Crie uma função para lidar com as mensagens do usuário
-    function userMessage(event) {
-      // Obtenha a mensagem do usuário a partir do evento
+    document.getElementById("chatbot-form").addEventListener("submit", function(event) {
       event.preventDefault();
-      const userQuery = event.target.querySelector("input#user-input").value;
+      sendMessage();
+    });
 
-      // Envie a mensagem do usuário para o chatbot
-      chatbotResponse(userQuery);
+    function sendMessage() {
+      const userQuery = document.getElementById("user-input").value;
+      if (!userQuery.trim()) {
+        alert("Por favor, digite uma mensagem.");
+        return;
+      }
+
+      // Exibe a mensagem do usuário no chat
+      displayMessage(userQuery, 'user');
+      document.getElementById("user-input").value = ''; // Limpa o campo de entrada
+
+      updateLoadingIndicator(true);
+
+      const fullMessage = { query: userQuery, history: chatHistory.slice(-4000).join('\n') };
+      const messageLength = JSON.stringify(fullMessage).length;
+
+      if (messageLength >= 4000) {
+        chatHistory = []; // Limpa o histórico se exceder 4000 caracteres
+      } else {
+        chatHistory.push(userQuery); // Adiciona ao histórico se não exceder
+      }
+
+      const proxyUrl = 'https://corsproxy.io/?';
+      const apiUrl = `https://hercai.onrender.com/v3/hercai?question=${encodeURIComponent(userQuery + '\n' + chatHistory.slice(-4000).join('\n'))}`;
+      const fetchUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
+
+      fetch(fetchUrl, {
+        method: 'GET',
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        displayMessage(data.reply, 'chatbot');
+        scrollToBottom();
+      })
+      .catch(error => {
+        console.error("Erro ao enviar a solicitação:", error);
+        displayMessage("Erro ao obter resposta do chatbot.", 'chatbot');
+      })
+      .finally(() => {
+        updateLoadingIndicator(false);
+      });
     }
 
-    // Adicione um ouvinte de eventos para capturar as mensagens do usuário
-    const chatbotForm = document.getElementById("chatbot-form");
-    chatbotForm.addEventListener("submit", userMessage);
+    function displayMessage(message, sender) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', sender + '-message');
+      messageDiv.textContent = message;
+      document.getElementById("chatbot-response").appendChild(messageDiv);
+    }
+
+    function scrollToBottom() {
+      const chatDiv = document.getElementById("chatbot-response");
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    function updateLoadingIndicator(start) {
+      const indicator = document.querySelector('.loading-indicator');
+      if (start) {
+        indicator.style.width = '100%';
+        indicator.style.backgroundColor = 'blue';
+      } else {
+        setTimeout(() => {
+          indicator.style.width = '0%';
+          indicator.style.backgroundColor = 'red';
+        }, 2000); // Delay to show the completion
+      }
+    }
   </script>
 </body>
 </html>
