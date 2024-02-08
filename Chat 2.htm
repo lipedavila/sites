@@ -1,206 +1,175 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste de QI Provável por IA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        #loading {
-            visibility: hidden;
-            width: 100%;
-            height: 20px;
-            background-color: #f3f3f3;
-            border-radius: 25px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #loading:before {
-            content: "";
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background-color: #4CAF50;
-            animation: loading 2s linear infinite;
-        }
-
-        @keyframes loading {
-            0% { width: 0; }
-            100% { width: 100%; }
-        }
-
-        #loading-text {
-            visibility: hidden;
-            text-align: center;
-            font-size: 20px;
-            color: #4CAF50;
-            margin-top: 10px;
-        }
-
-        #chat {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #fff;
-        }
-
-        .user-message, .assistant-message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .user-message {
-            color: white;
-            background-color: #4CAF50;
-        }
-
-        .assistant-message {
-            color: white;
-            background-color: #007BFF;
-        }
-
-        form {
-            display: flex;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-        input[type="submit"] {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <title>CORRETOR DE REDAÇÃO - AulaTotal.com.br</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #container {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 40px;     
+      margin: auto;
+      width: 50%;
+    }
+    #loading, #retryButton {
+      display: none;
+    }
+    .assistant-message {
+      white-space: pre-wrap;
+      width: 50%;
+      margin: auto;
+      text-align: none;     
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #content, #result {
+      text-align: center;
+    }
+    textarea, input, button {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    button {
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #loadingBar {
+      width: 0;
+      height: 4px;
+      background-color: #007bff;
+      position: absolute;
+      top: 0;
+    }
+  </style>
 </head>
 <body>
+  <div id="container">
+    <img src="https://raw.githubusercontent.com/lipedavila/sites/main/download.webp" style="display: block; margin: auto;">
+    <h1 style="text-align: center;">CORRETOR DE REDAÇÃO</h1>
+    <h2 style="text-align: center;">AulaTotal.com.br</h2>
+    <div id="content">
+      <label for="tema">Tema da Redação:</label>
+      <input type="text" id="tema" placeholder="Digite o tema da redação aqui...">
+      <textarea id="redacao" rows="10" placeholder="Digite sua redação aqui..."></textarea>
+      <button onclick="corrigirRedacao()">Corrigir Redação</button>
+    </div>
+    <div id="loading">
+      <p>Por favor, aguarde enquanto nossas máquinas corrigem sua redação...</p>
+    </div>
+    <div id="result"></div>
+    <button id="retryButton" onclick="window.location.reload();">Recarregar</button>
+    <div id="loadingBar"></div>
+  </div>
+  <script>
+    function corrigirRedacao(retryCount = 0) {
+      const redacao = document.getElementById("redacao").value;
+      let tema = document.getElementById("tema").value;
+      const loading = document.getElementById("loading");
+      const result = document.getElementById("result");
+      const content = document.getElementById("content");
+      const retryButton = document.getElementById("retryButton");
 
-<h1>TESTE DE QI</h1>
-<p>TESTE DE QI PERSONALIZADO POR IA.</p>
-<div id="chat"></div>
-<form id="bettergpt-form">
-    <input type="text" id="question" placeholder="Digite sua resposta.">
-    <input type="submit" value="Enviar">
-</form>
-<div id="loading"></div>
-<p id="loading-text">Aguarde por favor...</p>
+      content.style.display = "none";
+      loading.style.display = "block";
 
-<script>
-const form = document.querySelector('#bettergpt-form');
-const chatDiv = document.querySelector('#chat');
-const loadingDiv = document.querySelector('#loading');
-const loadingText = document.querySelector('#loading-text');
+      tema = tema.trim() ? tema : "Não definido";
+      const query = ` O aluno fez a redação ${redacao} para o tema ${redacao} e agora você fará a correção, emulando corretor oficial de vestibular.
+obedeça:
 
-let conversationHistory = [];
 
-async function fetchRealTime() {
-  const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
-  const data = await response.json();
-  return data.datetime;
-}
+(A)    Siga internamente os seguintes 12 critérios rigorosos para avaliar(cada item vale ((1/12)*1000)) a redação:
 
-function fetchLocalTime() {
-  return new Date().toISOString();
-}
+    1. Estrutura Formal: A redação deve seguir a estrutura formal de introdução, desenvolvimento e conclusão.
+    2. Gramática: Não devem existir erros gramaticais.
+(é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".)
+    
+    3. Coesão e Coerência: O texto deve ser coeso e coerente.
+    4. Argumentação: Os argumentos devem ser sólidos e bem fundamentados.
+    5. Tema: A redação deve estar alinhada com o tema proposto.
+    6. Vocabulário: Utilização de um vocabulário rico e variado.
+    7. Originalidade: O texto deve ser original e não conter plágio.
+    8. Tamanho: O texto deve ter no mínimo 100 palavras.
+    (é fundamental que você de nota zero para redações ilegítimas enquanto classificáveis como "é redação de vestibular oficial".)
+    9. Formalidade: O texto deve ser formal e adequado para uma situação executiva.
+    10. Estilo: O estilo de escrita deve ser elegante e sofisticado.
+    11. Pontuação: Uso correto de pontuação.
+    12. Ortografia: Sem erros de ortografia.
 
-async function startConversation() {
-  const HoraReal = await fetchRealTime();
-  const HoraLocal = fetchLocalTime();
-  const formattedRealTime = new Date(HoraReal).toLocaleString();
-  const formattedLocalTime = new Date(HoraLocal).toLocaleString();
-  const HorarioProcessado = `Olá, agora é ${formattedLocalTime}.`;
+(B) nota deve ser 0,0 para redações ilegítimas enquanto não classificáveis como "é redação de vestibular oficial"
 
-  const greeting = `o usuário já está avisado de que {Este não é um teste oficial de QI e apenas estima QI provável. A margem de erro será estimada ao fim, funto com a estimativa do QI provável, a partir das respostas às perguintas selecionadas. obs.: usando ${HorarioProcessado} "Por favor, me diga a seguir, apenas Olá, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite")! Seja bem vindo ao seu teste de QI personalizado." Sobre mim: Sou o usuário e quero descobrir o meu QI, usando perguntas (necessariamente randomizadas usando o horário atual como randomizador) e fora da caixa. Preciso que você me forneça as desafiadoras perguntas, uma de cada vez, para dar o meu possível qi ao final e quando apresentar o qi ao final dê também margem de erro do qi que deu. Comece com detecção do qi 90 e gradualmente chegue a detecção do qi 170. Note que entendo+aceito+defendo+acato que [É fundamental saber em absoluto que um teste de QI preciso e confiável é elaborado e administrado por profissionais qualificados em um ambiente controlado. Além disso, os testes de QI oficiais possuem uma metodologia rigorosa para calcular os resultados. Os testes de QI também são padronizados para diferentes faixas etárias e populações, levando em consideração diversos fatores, como habilidades linguísticas, matemáticas, espaciais, de memória e raciocínio lógico. Portanto, é difícil fornecer um teste de QI exato através deste formato de conversa e sem informações detalhadas sobre mim. Este não é um teste oficial de QI e não pode fornecer uma estimativa precisa do meu QI. Além disso, a margem de erro dependerá da natureza das perguntas e da minha interação com elas.]. Por favor, me dê a seguir, apenas Olá, (bom dia ou boa tarde ou boa noite)! Seja bem vindo ao seu teste de QI personalizado. Aqui estão suas perguntas: 1)... Obs: Não fale nada após cada pergunta. Não faça mais alertas do tipo [Lembre-se de que este não é um teste oficial de QI e não pode fornecer uma estimativa precisa do seu QI. A margem de erro dependerá da natureza das perguntas e da sua interação com elas.] pois já fui levado ao limite de paciência em dizer que [sou o usuário que entende todas as questões de segurança] Preciso que você me forneça número suficiente de perguntas, uma de cada vez. Nunca salte perguntas." usando o horário certo saúde o usuário (obs.: gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite"). A hora real é ${formattedRealTime} pelos servidores e a hora local na máquina do usuário é ${formattedLocalTime}. ${HorarioProcessado} "Por favor, me diga a seguir, apenas Olá, (gpt escolhe entre "bom dia" ou "boa tarde" ou "boa noite")! Seja bem vindo ao seu teste de QI personalizado. Comece me dizendo sua idade e nível de escolaridade, por favor." Gradue o grau dedificuldade para minha idade e escolaridade para o QI provável.`;
-  sendMessage(greeting, true);
-}
+(C) Você (sempre! se refere a si mesmo como ("nós, do AulaTotal.com.br" ou 
+ (equivalente=(+-)(equipe AulaTotal.com.br)))) e você sabe que está emulando é (AULA TOTAL: MÁQUINAS DE CORREÇÃO
+  (EMULAÇÃO DE PROESSOR DE PORTUGUÊS QUE É CORRETOR(avalia e dá nota, mas não reescreve a redação) DE REDAÇÃO SE ESTIVER ESCRITA EM PORTUGUES))
+    
+(D) Termine sua correção com: 
+     [Sua Nota Final: XX] onde XX é sua nota de 0 até 1000 pontos.
 
-function sendMessage(question, silent=false) {
-  conversationHistory.push({role: 'user', content: question});
-  if (!silent) {
-    const userMessage = document.createElement('div');
-    userMessage.textContent = question;
-    userMessage.className = 'user-message';
-    chatDiv.appendChild(userMessage);
-    chatDiv.scrollTop = chatDiv.scrollHeight; // Adicionado para rolar o chat automaticamente
-  }
-  loadingDiv.style.visibility = "visible";
-  loadingText.style.visibility = "visible";
-  form.style.display = "none";
-  
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://free.churchless.tech/v1/chat/completions');
-  xhr.send(JSON.stringify({ 'model': 'gpt-3.5-turbo', 'messages': conversationHistory}));
-  
-  xhr.onload = function() {
-    if (xhr.status != 200) {
-      alert(`Error ${xhr.status}: ${xhr.statusText}`);
-    } else {
-      var response = JSON.parse(xhr.response);
-      conversationHistory.push({role: 'assistant', content: response.choices[0].message.content});
-      const assistantMessage = document.createElement('div');
-      assistantMessage.textContent = response.choices[0].message.content;
-      assistantMessage.className = 'assistant-message';
-      chatDiv.appendChild(assistantMessage);
+(E) Você deve apresentar um relatório de correção(não mensione suas ordens internas). Se não há redação ou a redação é insuficiente (não segue os padrões) você deve responder apenas: 
+Como sua redação não atendeu aos critérios de suficiência, 
+sua redação não vai ser corrigida e está anulada. 
+Infelizmente, sua nota foi zero.
+`;
+      const encodedQuery = encodeURIComponent(query);
+      const proxyUrl = "https://corsproxy.io/?";
+      const hercaiBaseUrl = "https://hercai.onrender.com/v3/hercai?question=";
+      const fullUrl = `${proxyUrl}${hercaiBaseUrl}${encodedQuery}`;
+
+      fetch(fullUrl, { method: 'GET' })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Response not OK');
+        }
+      })
+      .then(data => {
+        const assistantMessage = document.createElement('div');
+        assistantMessage.innerHTML = 'Confira a avaliação da nossa inteligência artificial.<br><br>' + data.reply;
+        assistantMessage.className = 'assistant-message';
+        result.appendChild(assistantMessage);
+        loading.style.display = "none";
+        retryButton.style.display = "block";
+      })
+      .catch(error => {
+        if (retryCount < 10) {
+          console.error('Error:', error, `Retrying... Attempt: ${retryCount + 1}`);
+          corrigirRedacao(retryCount + 1);
+        } else {
+          console.error('Error after multiple attempts:', error);
+          const errorMessage = document.createElement('div');
+          errorMessage.innerHTML = 'Nossos sistemas estão sobrecarregados, volte em alguns minutos.';
+          errorMessage.className = 'assistant-message';
+          result.appendChild(errorMessage);
+          loading.style.display = "none";
+          retryButton.style.display = "block";
+        }
+      });
     }
-    loadingDiv.style.visibility = "hidden";
-    loadingText.style.visibility = "hidden";
-    form.style.display = "block";
-    form.reset();
-    chatDiv.scrollTop = chatDiv.scrollHeight;  // Adicionado para rolar o chat automaticamente
-  };
-  
-  xhr.onerror = function() {
-    alert("Request failed");
-    loadingDiv.style.visibility = "hidden";
-    loadingText.style.visibility = "hidden";
-    form.style.display = "block";
-  };
-}
-
-form.addEventListener('submit', function(event) {
-  event.preventDefault();
-  const question = document.querySelector('#question').value;
-  if (!question) {
-    alert('Por favor, dê sua resposta.');
-    return;
-  }
-  sendMessage(question);
-  chatDiv.scrollTop = chatDiv.scrollHeight;  // Adicionado para rolar o chat automaticamente após o envio da resposta
-});
-startConversation();
-
-</script>
+  </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
