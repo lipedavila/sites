@@ -1,86 +1,102 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Leitor de Conteúdo</title>
-  <style>
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 20px;
-    background-color: #f4f4f4;
-    color: #333;
-    transition: background-color 0.5s ease;
-}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #f9f9f9;
+            color: #333;
+            transition: background-color 0.5s ease;
+            background-image: url('background-pattern.png');
+            animation: backgroundAnimation 30s infinite alternate;
+        }
 
-#conteudoPagina {
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+        @keyframes backgroundAnimation {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
 
-#conteudoPagina:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
+        #conteudoPagina {
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 0 auto 20px auto;
+            max-width: 800px;
+            border: 2px solid #e0e0e0;
+            background-clip: padding-box;
+            position: relative;
+            overflow: hidden;
+        }
 
-#progressoBarra {
-    width: 100%;
-    background-color: #e0e0e0;
-    border-radius: 20px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: background-color 0.5s ease;
-}
+        #progressoBarra {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 20px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: background-color 0.5s ease;
+            margin: 20px auto;
+            max-width: 800px;
+            font-size: 12px;
+        }
 
-#progresso {
-    height: 30px;
-    background: linear-gradient(to right, #4caf50 0%, #81c784 100%);
-    transition: width 1s ease-in-out;
-    text-align: center;
-    line-height: 30px;
-    color: white;
-    border-radius: 20px;
-}
+        #progresso {
+            height: 20px;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            transition: width 1s ease-in-out;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 20px;
+        }
 
-button {
-    background-color: #4CAF50;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
+        .navigation {
+            text-align: center;
+            margin: 20px auto;
+            max-width: 800px;
+        }
 
-button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+        button {
+            background-color: #6a11cb;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
 
-#chatApi {
-    padding: 20px;
-    background: #e9e9e9;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-top: 20px;
-    transition: background-color 0.5s ease, transform 0.3s ease;
-}
+        button:hover {
+            background-color: #2575fc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
 
-#chatApi:hover {
-    background: #d9d9d9;
-    transform: scale(1.02);
-}
-</style>
+        #chatApi {
+            padding: 20px;
+            background: #e9e9e9;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 800px;
+            transition: background-color 0.5s ease, transform 0.3s ease;
+            position: relative;
+        }
 
+        #chatApi:hover {
+            background: #d9d9d9;
+        }
+    </style>
 </head>
 <body>
 
@@ -88,12 +104,14 @@ button:hover {
 <div id="progressoBarra" style="display: none;">
     <div id="progresso">0%</div>
 </div>
-<button id="anterior">Anterior</button>
-<button id="proximo">Próximo</button>
+<div class="navigation">
+    <button id="anterior">Anterior</button>
+    <button id="proximo">Próximo</button>
+</div>
 <div id="chatApi">Tela de interação com API de chat [Em desenvolvimento]</div>
 
 <script>
-    const paginas = {
+const paginas = {
   PAGINA1: `Bem-vindo ao mundo do AulaTotal IA Educacional, o ponto de partida para se preparar para entrar no futuro da educação! Imagine se o processo de aprendizagem pudesse ser tão divertido quanto jogar um jogo. Como seria se os professores pudessem ser como super-heróis e tivessem o superpoder de discernir as necessidades de aprendizagem de cada aluno? Que transformação traria se a educação pudesse ser adaptada à personalidade única de cada aluno, como roupas feitas sob medida?
 Agora, todos esses sonhos se tornarão realidade. AulaTotal IA Educacional se une ao GPT-4 para liderar uma nova era na educação. A Inteligência Artificial (IA) é uma força revolucionária na educação que revolucionará a forma como professores, facilitadores e alunos trabalham e aprendem.
 A IA também pode fornecer aos alunos recursos de aprendizagem massivos, incluindo bibliotecas digitais, plataformas de aprendizagem, etc., permitindo que os alunos obtenham os recursos de aprendizagem de que necessitam a qualquer hora e em qualquer lugar. Além disso, a IA pode fornecer feedback e assistência de aprendizagem em tempo real para ajudar os alunos a superar dificuldades de aprendizagem e obter melhores resultados.
@@ -423,8 +441,14 @@ Além de enriquecer a experiência em sala de aula, pesquisa e inovação colabo
 À medida que olhamos para o futuro da IA na educação, é evidente que pesquisa e inovação colaborativas continuarão sendo instrumentais na promoção de transformações positivas no ensino e aprendizagem. Os professores são encorajados a engajar-se ativamente em projetos de pesquisa colaborativa, redes profissionais e parcerias para contribuir para os avanços contínuos na educação com IA. Ao fomentar uma cultura de colaboração e troca de conhecimento, os educadores podem coletivamente moldar o futuro da educação com IA e garantir que a tecnologia sirva como catalisadora para aprimorar experiências educacionais para alunos em diversos ambientes de aprendizagem.
 `,
   PAGINA25: `PARABÉNS VOCÊ CONCLUI SEU EBOOK!`
-};
-     let paginaAtual = 1;
+}
+
+
+
+
+;
+
+    let paginaAtual = 1;
     const totalPaginas = Object.keys(paginas).length;
 
     function atualizarConteudo() {
@@ -444,19 +468,19 @@ Além de enriquecer a experiência em sala de aula, pesquisa e inovação colabo
         }
     }
 
-    document.getElementById('proximo').onclick = function() {
+    document.getElementById('proximo').addEventListener('click', function() {
         if (paginaAtual < totalPaginas) {
             paginaAtual++;
             atualizarConteudo();
         }
-    };
+    });
 
-    document.getElementById('anterior').onclick = function() {
+    document.getElementById('anterior').addEventListener('click', function() {
         if (paginaAtual > 1) {
             paginaAtual--;
             atualizarConteudo();
         }
-    };
+    });
 
     atualizarConteudo(); // Inicia a exibição com a primeira página
 </script>
