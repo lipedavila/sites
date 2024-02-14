@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -11,7 +10,6 @@
             padding: 40px;
             background-color: #f9f9f9;
             color: #333;
-            transition: background-color 0.5s ease;
             background-image: url('background-pattern.png');
             animation: backgroundAnimation 30s infinite alternate;
         }
@@ -34,6 +32,13 @@
             overflow: hidden;
         }
 
+        #paginaAtualTexto {
+            text-align: center;
+            margin: 10px auto;
+            font-size: 14px;
+            color: #666;
+        }
+
         #progressoBarra {
             width: 100%;
             background-color: #ddd;
@@ -43,13 +48,12 @@
             transition: background-color 0.5s ease;
             margin: 20px auto;
             max-width: 800px;
-            font-size: 12px;
+            font-size: 8px;
         }
 
         #progresso {
             height: 20px;
             background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-            transition: width 1s ease-in-out;
             text-align: center;
             line-height: 20px;
             color: white;
@@ -66,102 +70,247 @@
             background-color: #6a11cb;
             border: none;
             color: white;
-            padding: 10px 20px;
+            padding: 10px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
+            font-size: 12px;
             margin: 0 5px;
             cursor: pointer;
             border-radius: 5px;
             transition: all 0.3s ease;
+            width: 160px; /* Ajusta a largura dos botões */
+        }
+
+        #proximo {
+            width: calc(160px + 5px); /* Ajuste para o botão Avançar na primeira página */
         }
 
         button:hover {
             background-color: #2575fc;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-
-        #chatApi {
-            padding: 20px;
-            background: #e9e9e9;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin: 20px auto;
-            max-width: 800px;
-            transition: background-color 0.5s ease, transform 0.3s ease;
-            position: relative;
-        }
-
-        #chatApi:hover {
-            background: #d9d9d9;
-        }
     </style>
 </head>
 <body>
 
 <div id="conteudoPagina"></div>
+<div id="paginaAtualTexto"></div> <!-- Texto do número da página -->
 <div id="progressoBarra" style="display: none;">
     <div id="progresso">0%</div>
 </div>
 <div class="navigation">
-    <button id="anterior">Anterior</button>
-    <button id="proximo">Próximo</button>
+    <button id="anterior" style="display: none;">Anterior</button> <!-- Inicialmente oculto -->
+    <button id="proximo">Avançar</button> <!-- Ajustado dinamicamente -->
 </div>
-<div id="chatApi">Tela de interação com API de chat [Em desenvolvimento]</div>
+<div id="chatApi" style="display: none;">Tela de interação com API de chat [Em desenvolvimento]</div>
 
 <script>
 const paginas = {
-  PAGINA1: `Bem-vindo ao mundo do AulaTotal IA Educacional, o ponto de partida para se preparar para entrar no futuro da educação! Imagine se o processo de aprendizagem pudesse ser tão divertido quanto jogar um jogo. Como seria se os professores pudessem ser como super-heróis e tivessem o superpoder de discernir as necessidades de aprendizagem de cada aluno? Que transformação traria se a educação pudesse ser adaptada à personalidade única de cada aluno, como roupas feitas sob medida?
-Agora, todos esses sonhos se tornarão realidade. AulaTotal IA Educacional se une ao GPT-4 para liderar uma nova era na educação. A Inteligência Artificial (IA) é uma força revolucionária na educação que revolucionará a forma como professores, facilitadores e alunos trabalham e aprendem.
-A IA também pode fornecer aos alunos recursos de aprendizagem massivos, incluindo bibliotecas digitais, plataformas de aprendizagem, etc., permitindo que os alunos obtenham os recursos de aprendizagem de que necessitam a qualquer hora e em qualquer lugar. Além disso, a IA pode fornecer feedback e assistência de aprendizagem em tempo real para ajudar os alunos a superar dificuldades de aprendizagem e obter melhores resultados.
-O AulaTotal IA Educacional é o seu melhor parceiro para aproveitar o poder da inteligência artificial para melhorar o ensino e a aprendizagem. Junte-se a nós e torne-se um agente de mudança na educação!
-A seguir, vamos dar uma olhada mais profunda no aprendizado de máquina e no aprendizado profundo, que são os pilares das aplicações de IA na educação.
+    PAGINA1: `<style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            overflow: hidden;
+            padding: 0 20px 20px 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, p {
+            text-align: center;
+        }
+        h1 {
+            color: #6c63ff;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .highlight {
+            color: #6c63ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+    <div class="container">
+        <h1>Bem-vindo ao Mundo do AulaTotal IA Educacional</h1>
+        <p>O ponto de partida para se preparar para entrar no futuro da educação!</p>
+        <p>Imagine se o processo de aprendizagem pudesse ser tão divertido quanto jogar um jogo. Como seria se os professores pudessem ser como super-heróis e tivessem o superpoder de discernir as necessidades de aprendizagem de cada aluno? Que transformação traria se a educação pudesse ser adaptada à personalidade única de cada aluno, como roupas feitas sob medida?</p>
+        <p>Agora, todos esses sonhos se tornarão realidade. <span class="highlight">AulaTotal IA Educacional</span> se une ao GPT-4 para liderar uma nova era na educação.</p>
+    </div>`,
+    PAGINA2: `<style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, p {
+            text-align: justify;
+        }
+        h1 {
+            color: #6c63ff;
+            text-align: center;
+        }
+        h2 {
+            color: #5a55da;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .highlight {
+            color: #6c63ff;
+            font-weight: bold;
+        }
+        .stats-highlight {
+            background-color: #e8e8e8;
+            border-left: 5px solid #6c63ff;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Capítulo 1: Introdução à IA na Educação</h1>
+        <h2>1.1: Compreendendo a Inteligência Artificial</h2>
+        <p>A Inteligência Artificial (IA) tem se tornado um tópico cada vez mais prevalente em diversas indústrias, incluindo a educação. Como professor, é essencial entender os fundamentos da IA e seu impacto potencial no setor educacional. IA refere-se à simulação dos processos de inteligência humana por máquinas, particularmente sistemas de computador. Estes processos incluem aprendizado, raciocínio, resolução de problemas e tomada de decisões. A IA na educação visa aprimorar a experiência de aprendizagem para os estudantes, simplificar tarefas administrativas e fornecer caminhos de aprendizado personalizados.</p>
+        <p>Nos últimos anos, a IA ganhou destaque na educação devido à sua capacidade de analisar grandes conjuntos de dados para identificar padrões e fornecer insights valiosos. Por exemplo, plataformas de aprendizado potencializadas por IA podem avaliar as forças e fraquezas dos alunos, permitindo que os professores personalizem a instrução e apoiem as necessidades de aprendizagem únicas de cada aluno. Segundo um relatório da HolonIQ, espera-se que o mercado global de IA em educação atinja US$ 6 bilhões até 2025, demonstrando o crescente interesse e investimento em tecnologias de IA dentro do setor educacional.</p>
+        <div class="stats-highlight">Um estudo da McKinsey & Company descobriu que a automação e as tecnologias de IA poderiam potencialmente liberar cerca de 30% do tempo dos professores.</div>
+        <p>É importante notar que, embora a IA ofereça inúmeros benefícios, também existem considerações éticas e desafios a serem observados. Os professores devem entender as implicações éticas do uso da IA na educação, incluindo privacidade de dados, transparência e viés algorítmico. Além disso, integrar a IA na sala de aula requer planejamento cuidadoso e desenvolvimento profissional para garantir que os professores tenham as habilidades necessárias para aproveitar efetivamente as ferramentas de IA.</p>
+        <p>Em conclusão, compreender os fundamentos da inteligência artificial é crucial para educadores que procuram aproveitar seu potencial para transformar o ambiente de aprendizagem. Mantendo-se informados sobre as tendências da IA, considerações éticas e aplicações práticas, os professores podem navegar efetivamente pela paisagem em evolução da IA na educação e aproveitar seus benefícios para enriquecer a experiência de ensino e aprendizagem para os alunos.</p>
+    </div>`,
+    PAGINA3: `<style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            overflow: hidden;
+            padding: 0 20px 20px 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, p {
+            text-align: justify;
+        }
+        h1 {
+            color: #6c63ff;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #5a55da;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .highlight {
+            color: #6c63ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Importância da IA na Educação</h1>
+        <p>À medida que a paisagem da educação continua a evoluir, a integração da IA possui um imenso potencial para transformar métodos de ensino tradicionais e aprimorar a experiência de aprendizado dos alunos. A importância da IA na educação é sublinhada por sua capacidade de personalizar a aprendizagem, simplificar tarefas administrativas e fornecer insights valiosos para educadores.</p>
+        <h2>Personalização do Aprendizado</h2>
+        <p>Um dos principais benefícios da IA na educação é sua capacidade de personalizar experiências de aprendizagem para os alunos. Por meio de algoritmos inteligentes e aprendizado de máquina, a IA pode analisar os padrões de aprendizagem, forças e áreas para melhoria de um aluno.</p>
+        <h2>Automatização de Tarefas Administrativas</h2>
+        <p>Além disso, a IA desempenha um papel fundamental na automação de tarefas administrativas, permitindo que os educadores dediquem mais tempo ao ensino e à orientação dos alunos.</p>
+        <h2>Insights Baseados em Dados</h2>
+        <p>Além da personalização e eficiência administrativa, a IA também oferece insights valiosos para os educadores por meio da análise de dados.</p>
+        <h2>Preparação para o Futuro</h2>
+        <p>Ademais, a integração da IA na educação também atende à crescente demanda por habilidades do século 21, como pensamento crítico, criatividade e colaboração.</p>
+    </div>
 `,
-  PAGINA2: `Capítulo 1: Introdução à IA na Educação
-1.1: Compreendendo a Inteligência Artificial
-
-A Inteligência Artificial (IA) tem se tornado um tópico cada vez mais prevalente em diversas indústrias, incluindo a educação. Como professor, é essencial entender os fundamentos da IA e seu impacto potencial no setor educacional. IA refere-se à simulação dos processos de inteligência humana por máquinas, particularmente sistemas de computador. Estes processos incluem aprendizado, raciocínio, resolução de problemas e tomada de decisões. A IA na educação visa aprimorar a experiência de aprendizagem para os estudantes, simplificar tarefas administrativas e fornecer caminhos de aprendizado personalizados.
-
-Nos últimos anos, a IA ganhou destaque na educação devido à sua capacidade de analisar grandes conjuntos de dados para identificar padrões e fornecer insights valiosos. Por exemplo, plataformas de aprendizado potencializadas por IA podem avaliar as forças e fraquezas dos alunos, permitindo que os professores personalizem a instrução e apoiem as necessidades de aprendizagem únicas de cada aluno. Segundo um relatório da HolonIQ, espera-se que o mercado global de IA em educação atinja US$ 6 bilhões até 2025, demonstrando o crescente interesse e investimento em tecnologias de IA dentro do setor educacional.
-
-Além disso, a IA tem o potencial de automatizar tarefas administrativas, como a correção de avaliações e o gerenciamento de recursos educacionais, permitindo que os professores dediquem mais tempo à interação com os alunos e ao design de experiências de aprendizagem inovadoras. Um estudo da McKinsey & Company descobriu que a automação e as tecnologias de IA poderiam potencialmente liberar cerca de 30% do tempo dos professores, permitindo-lhes focar em tarefas de alto valor que impactam diretamente os resultados de aprendizagem dos alunos.
-
-É importante notar que, embora a IA ofereça inúmeros benefícios, também existem considerações éticas e desafios a serem observados. Os professores devem entender as implicações éticas do uso da IA na educação, incluindo privacidade de dados, transparência e viés algorítmico. Além disso, integrar a IA na sala de aula requer planejamento cuidadoso e desenvolvimento profissional para garantir que os professores tenham as habilidades necessárias para aproveitar efetivamente as ferramentas de IA.
-
-Em conclusão, compreender os fundamentos da inteligência artificial é crucial para educadores que procuram aproveitar seu potencial para transformar o ambiente de aprendizagem. Mantendo-se informados sobre as tendências da IA, considerações éticas e aplicações práticas, os professores podem navegar efetivamente pela paisagem em evolução da IA na educação e aproveitar seus benefícios para enriquecer a experiência de ensino e aprendizagem para os alunos.
-
-Nas próximas seções deste capítulo, aprofundaremos em tecnologias específicas de IA e suas aplicações práticas em sala de aula, equipando professores com o conhecimento e as ferramentas para integrar efetivamente a IA em suas práticas pedagógicas.
-`,
-  PAGINA3: `1.2: Importância da IA na Educação
-
-À medida que a paisagem da educação continua a evoluir, a integração da IA possui um imenso potencial para transformar métodos de ensino tradicionais e aprimorar a experiência de aprendizado dos alunos. A importância da IA na educação é sublinhada por sua capacidade de personalizar a aprendizagem, simplificar tarefas administrativas e fornecer insights valiosos para educadores. De acordo com um relatório da Research and Markets, espera-se que o mercado global de IA na educação atinja US$ 3,68 bilhões até 2023, com uma taxa de crescimento anual composta de 47% de 2018 a 2023. Isso demonstra o crescimento substancial e o reconhecimento da significância da IA no setor educacional.
-
-Um dos principais benefícios da IA na educação é sua capacidade de personalizar experiências de aprendizagem para os alunos. Por meio de algoritmos inteligentes e aprendizado de máquina, a IA pode analisar os padrões de aprendizagem, forças e áreas para melhoria de um aluno. Isso permite que os educadores adaptem seus métodos de ensino às necessidades individuais de cada aluno, promovendo um ambiente de aprendizado mais eficaz e envolvente. Além disso, plataformas educacionais potencializadas por IA podem fornecer feedback em tempo real aos alunos, ajudando-os a compreender conceitos de maneira mais efetiva e no seu próprio ritmo.
-
-Além disso, a IA desempenha um papel fundamental na automação de tarefas administrativas, permitindo que os educadores dediquem mais tempo ao ensino e à orientação dos alunos. De acordo com um relatório da McKinsey & Company, a IA e as tecnologias de automação têm o potencial de automatizar 30% das atividades em 60% de todas as ocupações. No setor educacional, isso poderia significar a simplificação de tarefas como correção, programação e avaliação, aumentando assim a eficiência geral das instituições educacionais.
-
-Além da personalização e eficiência administrativa, a IA também oferece insights valiosos para os educadores por meio da análise de dados. Ao coletar e analisar grandes volumes de dados, a IA pode identificar tendências, padrões de desempenho dos alunos e áreas que podem requerer atenção adicional. Essa abordagem baseada em dados capacita os educadores a tomar decisões informadas sobre suas estratégias de ensino, design curricular e sistemas de apoio aos alunos, levando a melhores resultados de aprendizagem.
-
-Ademais, a integração da IA na educação também atende à crescente demanda por habilidades do século 21, como pensamento crítico, criatividade e colaboração. Ferramentas potencializadas por IA podem facilitar a aprendizagem baseada em projetos, avaliações adaptativas e simulações interativas, proporcionando aos alunos oportunidades de desenvolver habilidades essenciais para a força de trabalho do futuro. Como destacado pelo Fórum Econômico Mundial, essas habilidades estão se tornando cada vez mais valiosas no ambiente de trabalho moderno, reforçando a importância de incorporar a IA na educação para preparar os alunos para o mundo dinâmico e impulsionado pela tecnologia que os espera após a graduação.
-
-Em conclusão, a importância da IA na educação manifesta-se em seu potencial para personalizar a aprendizagem, simplificar tarefas administrativas, fornecer insights valiosos para os educadores e preparar os alunos para as demandas da força de trabalho futura. À medida que a paisagem educacional global continua a abraçar avanços tecnológicos, a integração estratégica da IA tornou-se imperativa para promover um ambiente de aprendizado mais adaptável, eficiente e centrado no aluno.
-`,
-  PAGINA4: `1.3: Impacto da IA nos Métodos de Ensino Tradicionais
-
-A Inteligência Artificial (IA) está revolucionando o sistema educacional tradicional de maneiras que antes eram inimagináveis. A incorporação da IA nos métodos de ensino tradicionais está remodelando a paisagem educacional, oferecendo tanto desafios quanto oportunidades para educadores. À medida que a IA continua avançando, seu impacto nos métodos de ensino tradicionais se torna cada vez mais profundo e abrangente.
-
-Um dos impactos mais significativos da IA nos métodos de ensino tradicionais é a personalização das experiências de aprendizagem. Algoritmos de IA podem analisar os padrões de aprendizagem, forças e fraquezas de um aluno para fornecer conteúdo personalizado e recomendações, atendendo assim aos estilos de aprendizagem individuais. De fato, uma pesquisa realizada pela Pearson Education revelou que 84% dos professores acreditam que a IA ajudará a proporcionar experiências de aprendizagem personalizadas para os alunos (Pearson, 2019). Esse nível de personalização permite que os educadores atendam às diversas necessidades de seus alunos e aprimorem seus resultados de aprendizagem.
-
-Além disso, ferramentas de ensino assistidas por IA podem automatizar certas tarefas administrativas, como a correção e fornecimento de feedback sobre trabalhos, permitindo que os educadores dediquem mais tempo ao engajamento com seus alunos. De acordo com o McKinsey Global Institute, tecnologias de automação, incluindo a IA, poderiam potencialmente aumentar a produtividade dos professores em 20-30% (McKinsey & Company, 2019). Essa maior eficiência permite que os professores se concentrem mais em refinar suas estratégias pedagógicas e fornecer suporte individualizado a seus alunos, fomentando assim uma experiência de ensino mais produtiva e gratificante.
-
-Adicionalmente, a IA está facilitando a criação de ambientes de aprendizagem interativos e imersivos por meio do uso de tecnologias de realidade virtual (VR) e realidade aumentada (AR). Essas tecnologias permitem que os alunos participem de aprendizado experiencial, simulações e laboratórios virtuais, melhorando assim sua compreensão de conceitos complexos. De acordo com um relatório da PwC, 23% dos educadores acreditam que as tecnologias de IA e VR terão um impacto significativo na maneira como os alunos aprendem nos próximos cinco anos (PwC, 2020). A integração de tecnologias de IA impulsionadas por VR e AR nos métodos de ensino tradicionais está remodelando a experiência educacional, tornando-a mais interativa, envolvente e impactante para os alunos.
-
-Além disso, plataformas educacionais potencializadas por IA podem fornecer análises de dados em tempo real sobre o desempenho dos alunos, permitindo que os educadores identifiquem áreas de melhoria e adequem suas estratégias de ensino de acordo. Essa abordagem baseada em dados capacita os professores a tomar decisões instrucionais informadas e fornecer suporte direcionado a alunos que podem estar enfrentando dificuldades. Um estudo do National Center for Education Statistics descobriu que 67% dos professores concordam que a instrução baseada em dados tem um impacto positivo em sua capacidade de melhorar a aprendizagem dos alunos (NCES, 2018). A utilização de insights e análises gerados por IA aprimora a qualidade geral da educação, promovendo uma abordagem de ensino mais proativa e responsiva.
-
-Em conclusão, o impacto da IA nos métodos de ensino tradicionais é multifacetado e transformador. Desde experiências de aprendizagem personalizadas até a automação de tarefas administrativas e a integração de tecnologias imersivas, a IA está redefinindo a dinâmica da educação. À medida que os educadores navegam por essa paisagem educacional impulsionada pela IA, abraçar o potencial da IA, ao mesmo tempo em que se abordam seus desafios associados, será fundamental para aproveitar seu pleno potencial de transformar a educação em benefício de alunos e professores.
-`,
-  PAGINA5: `1.4: Considerações Éticas na Educação com IA
+    PAGINA4: `<style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, p {
+            text-align: justify;
+        }
+        h1 {
+            color: #6c63ff;
+            text-align: center;
+        }
+        h2 {
+            color: #5a55da;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .highlight {
+            color: #6c63ff;
+            font-weight: bold;
+        }
+        .stats-highlight {
+            background-color: #e8e8e8;
+            border-left: 5px solid #6c63ff;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Impacto da IA nos Métodos de Ensino Tradicionais</h1>
+        <p>A Inteligência Artificial (IA) está revolucionando o sistema educacional tradicional de maneiras que antes eram inimagináveis. A incorporação da IA nos métodos de ensino tradicionais está remodelando a paisagem educacional, oferecendo tanto desafios quanto oportunidades para educadores. À medida que a IA continua avançando, seu impacto nos métodos de ensino tradicionais se torna cada vez mais profundo e abrangente.</p>
+        <h2>Personalização das Experiências de Aprendizagem</h2>
+        <p>Algoritmos de IA podem analisar os padrões de aprendizagem, forças e fraquezas de um aluno para fornecer conteúdo personalizado e recomendações, atendendo assim aos estilos de aprendizagem individuais. <span class="highlight">De fato, uma pesquisa realizada pela Pearson Education revelou que 84% dos professores acreditam que a IA ajudará a proporcionar experiências de aprendizagem personalizadas para os alunos (Pearson, 2019).</span></p>
+        <div class="stats-highlight">A automação e IA podem aumentar a produtividade dos professores em 20-30% (McKinsey & Company, 2019).</div>
+        <h2>Automatização de Tarefas e Eficiência</h2>
+        <p>Ferramentas de ensino assistidas por IA podem automatizar certas tarefas administrativas, permitindo que os educadores dediquem mais tempo ao engajamento com seus alunos.</p>
+        <h2>Tecnologias Imersivas na Educação</h2>
+        <p>A IA está facilitando a criação de ambientes de aprendizagem interativos e imersivos por meio do uso de tecnologias de realidade virtual (VR) e realidade aumentada (AR), melhorando assim a compreensão de conceitos complexos.</p>
+        <h2>Análise de Dados e Suporte Direcionado</h2>
+        <p>Plataformas educacionais potencializadas por IA podem fornecer análises de dados em tempo real sobre o desempenho dos alunos, permitindo que os educadores identifiquem áreas de melhoria e adequem suas estratégias de ensino de acordo.</p>
+        <p>Em conclusão, o impacto da IA nos métodos de ensino tradicionais é multifacetado e transformador. À medida que os educadores navegam por essa paisagem educacional impulsionada pela IA, abraçar o potencial da IA será fundamental para aproveitar seu pleno potencial de transformar a educação em benefício de alunos e professores.</p>
+    </div>`,
+    PAGINA5: `1.4: Considerações Éticas na Educação com IA
 Na paisagem rapidamente evolutiva da IA na educação, é crucial para os educadores navegar pelas considerações éticas associadas à sua implementação. Ao introduzirmos tecnologias de IA no âmbito da educação, é imperativo considerar os impactos potenciais nos alunos, professores e no sistema educacional mais amplo. As considerações éticas na educação com IA abrangem uma ampla gama de questões, incluindo privacidade de dados, viés algorítmico e o uso ético de ferramentas potencializadas por IA em sala de aula.
 
 Uma das principais considerações éticas na educação com IA é a questão da privacidade de dados. As tecnologias de IA frequentemente dependem de vastas quantidades de dados para funcionar efetivamente. Ao implementar IA em ambientes educacionais, é essencial priorizar a privacidade e segurança dos dados dos alunos. De acordo com um estudo conduzido pelo Future of Privacy Forum, 87% dos pais estão preocupados com a privacidade e segurança dos dados de seus filhos em sistemas de tecnologia educacional. Isso sublinha a importância primordial de estabelecer políticas e práticas robustas de privacidade de dados ao integrar IA em ambientes educacionais.
@@ -441,48 +590,70 @@ Além de enriquecer a experiência em sala de aula, pesquisa e inovação colabo
 À medida que olhamos para o futuro da IA na educação, é evidente que pesquisa e inovação colaborativas continuarão sendo instrumentais na promoção de transformações positivas no ensino e aprendizagem. Os professores são encorajados a engajar-se ativamente em projetos de pesquisa colaborativa, redes profissionais e parcerias para contribuir para os avanços contínuos na educação com IA. Ao fomentar uma cultura de colaboração e troca de conhecimento, os educadores podem coletivamente moldar o futuro da educação com IA e garantir que a tecnologia sirva como catalisadora para aprimorar experiências educacionais para alunos em diversos ambientes de aprendizagem.
 `,
   PAGINA25: `PARABÉNS VOCÊ CONCLUI SEU EBOOK!`
-}
+};
 
+let paginaAtual = 1;
+const totalPaginas = Object.keys(paginas).length;
 
+function atualizarConteudo() {
+    const conteudo = document.getElementById('conteudoPagina');
+    const progressoBarra = document.getElementById('progressoBarra');
+    const progresso = document.getElementById('progresso');
+    const paginaAtualTexto = document.getElementById('paginaAtualTexto');
+    const btnAnterior = document.getElementById('anterior');
+    const btnProximo = document.getElementById('proximo');
 
+    conteudo.innerHTML = paginas[`PAGINA${paginaAtual}`];
+    paginaAtualTexto.innerHTML = `Página ${paginaAtual} de ${totalPaginas}`;
 
-;
-
-    let paginaAtual = 1;
-    const totalPaginas = Object.keys(paginas).length;
-
-    function atualizarConteudo() {
-        const conteudo = document.getElementById('conteudoPagina');
-        const progressoBarra = document.getElementById('progressoBarra');
-        const progresso = document.getElementById('progresso');
-
-        conteudo.innerHTML = paginas[`PAGINA${paginaAtual}`];
-
-        if (paginaAtual > 1 && paginaAtual < totalPaginas) {
-            progressoBarra.style.display = 'block';
-            const percentualConcluido = Math.round((paginaAtual - 1) / (totalPaginas - 1) * 100);
-            progresso.style.width = `${percentualConcluido}%`;
-            progresso.textContent = `${percentualConcluido}% concluído`;
-        } else {
-            progressoBarra.style.display = 'none';
-        }
+    if (paginaAtual === 1) {
+        btnAnterior.style.display = 'none';
+        btnProximo.innerHTML = 'Avance para a página 2';
+        btnProximo.style.width = '160px'; // Ajusta a largura para metade
+    } else {
+        btnAnterior.style.display = 'inline-block';
+        btnAnterior.innerHTML = `Volte para a página ${paginaAtual - 1}`;
+        btnProximo.style.width = '160px'; // Restaura a largura original
     }
 
-    document.getElementById('proximo').addEventListener('click', function() {
-        if (paginaAtual < totalPaginas) {
-            paginaAtual++;
-            atualizarConteudo();
-        }
-    });
+    if (paginaAtual === totalPaginas) {
+        btnProximo.innerHTML = 'Reiniciar';
+        btnProximo.addEventListener('click', reiniciar);
+    } else {
+        btnProximo.innerHTML = `Avance para a página ${paginaAtual + 1}`;
+        btnProximo.removeEventListener('click', reiniciar);
+    }
 
-    document.getElementById('anterior').addEventListener('click', function() {
-        if (paginaAtual > 1) {
-            paginaAtual--;
-            atualizarConteudo();
-        }
-    });
+    if (paginaAtual > 1 && paginaAtual <= totalPaginas) {
+        progressoBarra.style.display = 'block';
+        const percentualConcluido = Math.round((paginaAtual - 1) / (totalPaginas - 1) * 100);
+        progresso.style.width = `${percentualConcluido}%`;
+        progresso.textContent = `${percentualConcluido}% concluído`;
+    } else {
+        progressoBarra.style.display = 'none';
+    }
+}
 
-    atualizarConteudo(); // Inicia a exibição com a primeira página
+function reiniciar() {
+    paginaAtual = 1;
+    atualizarConteudo();
+}
+
+document.getElementById('proximo').addEventListener('click', function() {
+    if (paginaAtual < totalPaginas) {
+        paginaAtual++;
+        atualizarConteudo();
+    }
+});
+
+document.getElementById('anterior').addEventListener('click', function() {
+    if (paginaAtual > 1) {
+        paginaAtual--;
+        atualizarConteudo();
+    }
+});
+
+atualizarConteudo(); // Inicia a exibição com a primeira página
 </script>
 </body>
 </html>
