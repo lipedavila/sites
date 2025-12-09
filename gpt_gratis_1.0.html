@@ -288,7 +288,10 @@ DIRETRIZES ESTRITAS:
 
         let typingTimer;
         let inputDebounceTimer;
-        let lastInteractionTime = Date.now();
+        // --- GESTÃO DE RESILIÊNCIA DA API (MODUS OPERANDI: ORÁCULO) ---
+        const RATE_LIMIT_MS = 3000;
+        const MAX_RETRIES = 3;
+        let lastApiCallTimestamp = 0;
         let graphCounter = 0;
 
         function setBotStatus(status) { 
@@ -454,31 +457,66 @@ DIRETRIZES ESTRITAS:
             await processPart(0);
         }
 
-        // --- API Pollinations ---
+        // --- API Pollinations (MODUS OPERANDI: BLINDADO) ---
+        
+        const waitForRateLimit = async () => {
+            const now = Date.now();
+            const timeSinceLastCall = now - lastApiCallTimestamp;
+            if (timeSinceLastCall < RATE_LIMIT_MS) {
+                const delay = RATE_LIMIT_MS - timeSinceLastCall;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+            lastApiCallTimestamp = Date.now();
+        };
+
         async function callPollinationsAPI(msgs) {
             setBotStatus("Pensando...");
             setEmotionalState("processing"); 
             const url = `https://text.pollinations.ai/`;
             
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: msgs,
-                        model: 'openai', 
-                        jsonMode: false
-                    })
-                });
+            for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                await waitForRateLimit();
+                
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messages: msgs,
+                            model: 'openai', 
+                            jsonMode: false,
+                            private: true // Adicionado para paridade com Oráculo (Melhora resiliência)
+                        })
+                    });
 
-                if (!response.ok) throw new Error(`Pollinations Error: ${response.status}`);
-                const responseText = await response.text();
-                if (responseText) return responseText;
-                else throw new Error("Resposta vazia.");
-            } catch (e) {
-                setEmotionalState("error");
-                setBotStatus("Erro");
-                throw e; 
+                    if (!response.ok) {
+                        console.warn(`Tentativa ${attempt} falhou: Status ${response.status}`);
+                        if (attempt === MAX_RETRIES) throw new Error(`Erro na API: ${response.status}`);
+                        continue; // Tenta novamente
+                    }
+
+                    const responseText = await response.text();
+                    
+                    // FILTRO DE CONTEÚDO (AUTOEXCLUSÃO DE 'SPONSOR' / 'POLLINATIONS')
+                    const lowerText = responseText.toLowerCase();
+                    if (lowerText.includes('pollinations') || lowerText.includes('sponsor') || lowerText.includes('donat')) {
+                        console.warn(`Tentativa ${attempt}: Conteúdo promocional detectado. Retentando...`);
+                        if (attempt === MAX_RETRIES) throw new Error("Falha: Conteúdo promocional persistente.");
+                        continue; // Tenta novamente
+                    }
+
+                    if (!responseText) throw new Error("Resposta vazia.");
+                    
+                    return responseText; // Sucesso
+
+                } catch (e) {
+                    console.error(`Erro na tentativa ${attempt}:`, e);
+                    if (attempt === MAX_RETRIES) {
+                        setEmotionalState("error");
+                        setBotStatus("Erro");
+                        throw e; 
+                    }
+                }
             }
         }
 
