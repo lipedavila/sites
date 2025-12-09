@@ -50,6 +50,12 @@
             border-color: rgba(249, 115, 22, 0.3);
         }
 
+        /* Custom Scrollbar for Modals */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.1); border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(0,0,0,0.2); }
+
         /* 3D Depth Utilities */
         .perspective-1000 { perspective: 1000px; }
         .preserve-3d { transform-style: preserve-3d; }
@@ -245,9 +251,9 @@
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                             <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-md transition-opacity duration-300" onClick={() => setActiveCard(null)}></div>
                             
-                            <div className="relative w-full max-w-md bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-pop-in transform transition-all">
-                                {/* Header Decoration */}
-                                <div className={`h-40 bg-gradient-to-br ${activeCard.gradient} relative overflow-hidden flex items-center justify-center`}>
+                            <div className="relative w-full max-w-md bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-pop-in transform transition-all max-h-[85vh] flex flex-col">
+                                {/* Header Decoration (Shrink-0 to preserve size) */}
+                                <div className={`h-40 shrink-0 bg-gradient-to-br ${activeCard.gradient} relative overflow-hidden flex items-center justify-center`}>
                                     <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1.5px, transparent 1.5px)', backgroundSize: '16px 16px'}}></div>
                                     
                                     {/* Big Floating Icon */}
@@ -263,7 +269,7 @@
                                     </button>
                                 </div>
 
-                                <div className="p-8 md:p-10">
+                                <div className="p-8 md:p-10 overflow-y-auto custom-scrollbar">
                                     <span className={`inline-block text-[10px] font-extrabold px-3 py-1 rounded-full mb-3 bg-slate-100 text-slate-500 uppercase tracking-wider`}>
                                         {activeCard.category}
                                     </span>
@@ -303,23 +309,24 @@
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
                             <div className="absolute inset-0 bg-orange-900/20 backdrop-blur-lg transition-opacity duration-500" onClick={() => setComingSoon(false)}></div>
                             
-                            <div className="relative w-full max-w-sm bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(249,115,22,0.3)] overflow-hidden animate-pop-in">
-                                {/* Gradient Background */}
+                            <div className="relative w-full max-w-sm bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(249,115,22,0.3)] overflow-hidden animate-pop-in max-h-[85vh] flex flex-col">
+                                {/* Gradient Background - Absolute (z-0) */}
                                 <div className="absolute inset-0 bg-gradient-to-b from-white via-orange-50 to-red-50 z-0"></div>
                                 
                                 {/* Decorative Blobs */}
                                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-300/30 rounded-full blur-3xl animate-blob"></div>
                                 <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-red-300/30 rounded-full blur-3xl animate-blob" style={{animationDelay: '2s'}}></div>
 
-                                <div className="relative z-10 p-10 flex flex-col items-center text-center">
+                                {/* Content - Relative (z-10) with Scroll */}
+                                <div className="relative z-10 p-10 flex flex-col items-center text-center overflow-y-auto custom-scrollbar">
                                     
                                     {/* Icon Container with Complex Shadow */}
-                                    <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl flex items-center justify-center text-white mb-8 shadow-2xl shadow-orange-500/40 rotate-3 hover:rotate-6 transition-transform duration-500">
+                                    <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl flex items-center justify-center text-white mb-8 shadow-2xl shadow-orange-500/40 rotate-3 hover:rotate-6 transition-transform duration-500 shrink-0">
                                         <Icon name="Construction" size={48} />
                                     </div>
 
                                     <h3 className="text-2xl font-black text-slate-800 mb-2">Em Incubação!</h3>
-                                    <div className="h-1 w-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mb-6"></div>
+                                    <div className="h-1 w-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mb-6 shrink-0"></div>
 
                                     <p className="text-slate-600 font-medium leading-relaxed mb-8">
                                         Estamos preparando este recurso com o padrão de qualidade 
@@ -329,7 +336,7 @@
 
                                     <button 
                                         onClick={() => setComingSoon(false)}
-                                        className="w-full py-4 rounded-2xl bg-white border-2 border-slate-100 text-slate-700 font-bold shadow-lg hover:border-orange-200 hover:text-orange-600 hover:shadow-xl transition-all"
+                                        className="w-full py-4 rounded-2xl bg-white border-2 border-slate-100 text-slate-700 font-bold shadow-lg hover:border-orange-200 hover:text-orange-600 hover:shadow-xl transition-all shrink-0"
                                     >
                                         Entendi, vou aguardar
                                     </button>
