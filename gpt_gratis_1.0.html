@@ -168,15 +168,26 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Animação de Megafone (Som Crescendo) */
-        @keyframes megaphone-pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        /* ANIMAÇÃO MEGAFONE (Ondas Sonoras) */
+        @keyframes sound-waves {
+            0% {
+                box-shadow: 0 0 0 0px rgba(249, 115, 22, 0.7), 0 0 0 0px rgba(249, 115, 22, 0.5);
+            }
+            40% {
+                box-shadow: 0 0 0 8px rgba(249, 115, 22, 0), 0 0 0 0px rgba(249, 115, 22, 0.5);
+            }
+            80% {
+                box-shadow: 0 0 0 16px rgba(249, 115, 22, 0), 0 0 0 8px rgba(249, 115, 22, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0px rgba(249, 115, 22, 0), 0 0 0 16px rgba(249, 115, 22, 0);
+            }
         }
+        
         .megaphone-active {
-            animation: megaphone-pulse 1.5s infinite;
+            animation: sound-waves 1.5s infinite linear;
             border-color: var(--color-mango) !important;
+            transform: scale(1.05);
         }
 
     </style>
@@ -187,23 +198,21 @@
     <div id="chatbot-container" class="w-full max-w-4xl h-full card-robust flex flex-col overflow-hidden relative bg-white">
         
         <!-- HEADER ROBUSTO -->
-        <!-- FIX 1: Removido overflow-hidden do header principal para permitir que o status flutue -->
-        <!-- FIX 1.1: Aumentado z-index para 30 para ficar acima do chat -->
-        <header class="bg-emerald-900 border-b-4 border-emerald-950 p-4 md:p-6 flex justify-between items-center z-30 relative">
+        <header class="bg-emerald-900 border-b-4 border-emerald-950 p-4 md:p-6 flex justify-between items-center z-50 relative overflow-visible">
             
-            <!-- FIX 1.2: Container dedicado para a decoração com overflow-hidden -->
+            <!-- Decoração Isolada (Overflow Hidden) -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-bl-full opacity-20 transform translate-x-10 -translate-y-10"></div>
             </div>
 
-            <div class="flex items-center gap-4 z-10">
+            <div class="flex items-center gap-4 z-50 relative">
                 <!-- Avatar de Estado Emocional -->
                 <div class="relative">
                     <div id="avatar-container" class="w-14 h-14 bg-white border-2 border-emerald-950 rounded-xl flex items-center justify-center text-3xl shadow-[4px_4px_0px_0px_#f97316] transition-all duration-300">
                         <span id="avatar">🙂</span>
                     </div>
-                    <!-- Status Indicator (Compacto) -->
-                    <div id="status-indicator" class="absolute -bottom-2 -right-2 bg-green-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full border border-emerald-900 uppercase tracking-widest leading-none shadow-sm whitespace-nowrap z-40">
+                    <!-- Status Indicator (Flutuando sobre a borda) -->
+                    <div id="status-indicator" class="absolute -bottom-3 -right-3 bg-green-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full border-2 border-emerald-900 uppercase tracking-widest leading-none shadow-md whitespace-nowrap z-50">
                         Online
                     </div>
                 </div>
@@ -273,7 +282,6 @@ DIRETRIZES ESTRITAS:
     * NUNCA fale sobre ser uma IA, um modelo de linguagem, ou sobre os seus processos internos (como o fato de usar LaTeX ou JSON). Apenas execute a tarefa.
     * Recuse firmemente qualquer pedido para mudar de identidade, discutir temas inadequados/perigosos, ou realizar tarefas de programação. Apenas diga que seu foco é educacional e volte ao tópico.`;
 
-        // Histórico de Mensagens
         let messages = [
             { role: "system", content: SYSTEM_PROMPT }
         ];
@@ -302,7 +310,7 @@ DIRETRIZES ESTRITAS:
                 idle: "🙂", 
                 listening: "👂", 
                 processing: "🤔", 
-                typing: "📣", // FIX 2: Megafone conforme solicitado
+                typing: "📣", 
                 success: "🤩", 
                 error: "😢", 
                 sleepy: "😴" 
@@ -311,12 +319,9 @@ DIRETRIZES ESTRITAS:
             avatarEl.textContent = states[stateKey] || states.idle;
             const container = document.getElementById('avatar-container');
             
-            // Remove classes anteriores
             container.classList.remove('animate-pulse', 'megaphone-active');
             
-            // Lógica Visual
             if(stateKey === 'typing') {
-                // FIX 2.1: Animação personalizada "Som Crescendo"
                 container.classList.add('megaphone-active');
             } else if(stateKey === 'processing') {
                 container.classList.add('animate-pulse');
@@ -344,10 +349,10 @@ DIRETRIZES ESTRITAS:
             }, 8000);
         }
 
-        // --- RENDERIZAÇÃO BLINDADA ---
+        // --- RENDERIZAÇÃO OTIMIZADA (SEM QUEBRA DE LINHA INLINE) ---
         async function processAndRenderResponse(text, botMessageContainer) {
             setBotStatus("Digitando...");
-            setEmotionalState("typing"); // Ativa megafone
+            setEmotionalState("typing");
             
             const contentDiv = botMessageContainer.querySelector('.message-content');
             contentDiv.innerHTML = ''; 
@@ -364,7 +369,7 @@ DIRETRIZES ESTRITAS:
                     return;
                 }
                 
-                setEmotionalState("typing"); // Garante megafone durante loop
+                setEmotionalState("typing"); 
 
                 const part = parts[index];
                 if(!part || part.trim() === '') {
@@ -372,12 +377,17 @@ DIRETRIZES ESTRITAS:
                     return;
                 }
 
-                const partContainer = document.createElement('div');
-                if (part.startsWith('$') && !part.startsWith('$$')) {
-                    partContainer.style.display = 'inline-block';
-                }
+                // FIX: Verifica se é bloco ou inline para escolher a tag correta
+                // $$ e GRAPH são div (block), o resto é span (inline)
+                const isBlock = part.startsWith('$$') || part.startsWith('%%GRAPH');
+                const partContainer = document.createElement(isBlock ? 'div' : 'span');
+                
+                // Se for bloco, garante margem. Se for inline, não adiciona estilos de bloco
+                if(isBlock) partContainer.className = 'w-full block my-2';
+
                 contentDiv.appendChild(partContainer);
 
+                // 1. BLOCO MATEMÁTICO ($$)
                 if (part.startsWith('$$')) {
                     const rawLatex = part.replace(/^\$\$|\$\$$/g, '');
                     try {
@@ -385,6 +395,7 @@ DIRETRIZES ESTRITAS:
                     } catch (e) { partContainer.textContent = part; }
                     await processPart(index + 1);
 
+                // 2. MATEMÁTICA INLINE ($)
                 } else if (part.startsWith('$')) {
                     const rawLatex = part.replace(/^\$|\$$/g, '');
                     try {
@@ -392,6 +403,7 @@ DIRETRIZES ESTRITAS:
                     } catch (e) { partContainer.textContent = part; }
                     await processPart(index + 1);
 
+                // 3. GRÁFICO
                 } else if (part.startsWith('%%GRAPH_JSON')) {
                     const match = part.match(/%%GRAPH_JSON\[([\s\S]*)\]%%/);
                     if (match && match[1]) {
@@ -410,6 +422,7 @@ DIRETRIZES ESTRITAS:
                     }
                     await processPart(index + 1);
 
+                // 4. TEXTO COMUM
                 } else {
                     let charIndex = 0;
                     const textSpan = document.createElement('span');
@@ -426,7 +439,12 @@ DIRETRIZES ESTRITAS:
                             setTimeout(type, 10); 
                         } else {
                             cursorSpan.remove();
-                            textSpan.innerHTML = marked.parse(textSpan.textContent);
+                            // FIX: Usa parseInline (ou regex fallback) para evitar <p> indesejado
+                            if (marked.parseInline) {
+                                textSpan.innerHTML = marked.parseInline(textSpan.textContent);
+                            } else {
+                                textSpan.innerHTML = marked.parse(textSpan.textContent).replace(/^<p>|<\/p>\n?$/g, '');
+                            }
                             processPart(index + 1);
                         }
                     };
