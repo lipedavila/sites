@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<!-- saved from url=(0062)file:///C:/Users/pop/Downloads/calculadora_de_viabilidade.html -->
+<html lang="pt-br" class="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Masters | Calculadora de Viabilidade</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="./Business Masters _ Calculadora de Viabilidade_files/saved_resource"></script>
+    
+    <!-- Google Fonts: Orbitron (LCD), Rajdhani (Technical), Fira Code (Math) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./Business Masters _ Calculadora de Viabilidade_files/css2" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="./Business Masters _ Calculadora de Viabilidade_files/all.min.css">
+    
+    <!-- Chart.js & Math.js -->
+    <script src="./Business Masters _ Calculadora de Viabilidade_files/chart.js.transferir"></script>
+    <script src="./Business Masters _ Calculadora de Viabilidade_files/math.js.transferir"></script>
+
+    <!-- KaTeX for LaTeX -->
+    <link rel="stylesheet" href="./Business Masters _ Calculadora de Viabilidade_files/katex.min.css">
+    <script src="./Business Masters _ Calculadora de Viabilidade_files/katex.min.js.transferir"></script>
+    <script src="./Business Masters _ Calculadora de Viabilidade_files/auto-render.min.js.transferir"></script>
+
+    <style>
+        :root {
+            --metal-base: #2a2d34;
+            --metal-light: #3f434c;
+            --metal-dark: #1a1c20;
+            --led-cyan: #00ffff;
+            --led-cyan-glow: rgba(0, 255, 255, 0.6);
+            --led-amber: #ffbf00;
+            --led-magenta: #ff00ff;
+            --led-red: #ff3333;
+            --led-green: #33ff33;
+            --lcd-yellow: #e5c100;
+            --lcd-dark: #1f1b04;
+        }
+
+        body {
+            background-color: #111;
+            background-image: 
+                radial-gradient(circle at 50% 50%, #1a1c20 0%, #000 100%),
+                repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px);
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* --- TEXTURAS DE HARDWARE --- */
+        .brushed-metal {
+            background: linear-gradient(135deg, var(--metal-base) 0%, var(--metal-light) 50%, var(--metal-dark) 100%);
+            box-shadow: inset 1px 1px 1px rgba(255,255,255,0.1), inset -1px -1px 2px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.8);
+            border: 1px solid #111;
+        }
+
+        .panel-groove {
+            background: #1a1c20;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8), inset -1px -1px 2px rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        /* --- PLACA PINBALL (MOTOR MATEMÁTICO) --- */
+        .pinball-board {
+            background: linear-gradient(135deg, #10002b 0%, #3c096c 50%, #000000 100%);
+            border: 4px solid var(--led-cyan);
+            border-radius: 12px;
+            box-shadow: 
+                inset 0 0 50px rgba(0, 0, 0, 0.9), 
+                inset 0 0 20px var(--led-magenta),
+                0 0 15px var(--led-cyan-glow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s ease-out, box-shadow 0.2s ease-out;
+            padding: 10px;
+        }
+        
+        .pinball-board::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(var(--led-magenta) 1px, transparent 1px),
+                linear-gradient(90deg, var(--led-magenta) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.15;
+            transform: perspective(500px) rotateX(45deg) scale(2);
+            transform-origin: bottom;
+            pointer-events: none;
+            animation: grid-move 5s linear infinite;
+        }
+        @keyframes grid-move {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 30px; }
+        }
+
+        /* Área Matemática Auto-ajustável */
+        .math-render-area { 
+            font-size: 2.2rem;
+            color: #ffffff; 
+            text-shadow: 0 0 10px var(--led-cyan), 0 0 20px var(--led-cyan);
+            z-index: 10;
+            white-space: nowrap; 
+            transform-origin: center center;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Alvos Interativos das Fórmulas */
+        @keyframes var-breathing {
+            0% { border-bottom-color: rgba(0, 255, 255, 0.3); text-shadow: 0 0 10px var(--led-cyan); }
+            50% { border-bottom-color: rgba(0, 255, 255, 1); text-shadow: 0 0 20px #fff, 0 0 30px var(--led-cyan); color: #e0ffff; }
+            100% { border-bottom-color: rgba(0, 255, 255, 0.3); text-shadow: 0 0 10px var(--led-cyan); }
+        }
+        @keyframes var-hit-flash {
+            0% { transform: scale(1); color: #fff; }
+            20% { transform: scale(1.6); text-shadow: 0 0 40px var(--led-amber), 0 0 60px #fff; color: var(--led-amber); }
+            100% { transform: scale(1); color: #fff; }
+        }
+        
+        .math-target-var {
+            display: inline-block;
+            transition: all 0.2s;
+            border-bottom: 3px dashed rgba(0, 255, 255, 0.5);
+            cursor: crosshair;
+            padding: 0 4px;
+            border-radius: 4px;
+            background: rgba(0, 255, 255, 0.05);
+            animation: var-breathing 2s infinite;
+            pointer-events: auto; 
+        }
+        .math-target-var:hover {
+            background: rgba(0, 255, 255, 0.3);
+            transform: translateY(-2px) scale(1.1);
+            animation: none;
+            border-bottom: 3px solid var(--led-cyan);
+            color: #fff;
+        }
+        .math-target-var.hit {
+            animation: var-hit-flash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Projéteis Animados de Valor (Balística) */
+        .value-projectile {
+            position: fixed;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--lcd-yellow);
+            text-shadow: 0 0 15px var(--led-amber), 0 0 30px #ff0000;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--led-amber);
+            border-radius: 50%;
+            width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; z-index: 99999;
+            transform: translate(-50%, -50%) scale(1);
+            transition: top 0.4s cubic-bezier(0.5, -0.5, 0.5, 1.5), left 0.4s linear, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* --- DISPLAYS LCD AMARELO RETRÔ --- */
+        .retro-lcd-display {
+            background-color: var(--lcd-yellow);
+            color: var(--lcd-dark);
+            font-family: 'Orbitron', monospace;
+            box-shadow: 
+                inset 4px 4px 10px rgba(0,0,0,0.5), 
+                inset -2px -2px 6px rgba(255,255,255,0.4),
+                0 0 15px rgba(229, 193, 0, 0.2);
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+            border: 3px solid #0a0a0a;
+            border-radius: 6px;
+            position: relative; overflow: hidden;
+            font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .retro-lcd-display::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(0,0,0,0.05) 50%, transparent 50%);
+            background-size: 100% 4px; pointer-events: none;
+        }
+
+        /* --- EFEITOS UX DE DOPAMINA E ESTRESSE --- */
+        @keyframes overdrive-pulse {
+            0% { box-shadow: 0 0 20px #00ff00, inset 4px 4px 10px rgba(0,0,0,0.5); background-color: #aaffaa; }
+            50% { box-shadow: 0 0 50px #00ff00, inset 4px 4px 10px rgba(0,0,0,0.5); background-color: #55ff55; color: #003300;}
+            100% { box-shadow: 0 0 20px #00ff00, inset 4px 4px 10px rgba(0,0,0,0.5); background-color: #aaffaa; }
+        }
+        .lcd-overdrive { animation: overdrive-pulse 0.8s infinite; border-color: #00ff00; }
+        
+        @keyframes system-crash-shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        @keyframes crash-flash {
+            0% { background-color: #ff3333; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 30px #ff0000; }
+            50% { background-color: #4a0000; color: #ff3333; text-shadow: none; box-shadow: none; }
+            100% { background-color: #ff3333; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 30px #ff0000; }
+        }
+        .lcd-crash { animation: system-crash-shake 0.3s cubic-bezier(.36,.07,.19,.97) both, crash-flash 0.5s infinite; border-color: #ff0000; }
+
+        @keyframes warning-flash {
+            0%, 100% { background-color: var(--lcd-yellow); }
+            50% { background-color: #ffaa00; color: #000; box-shadow: 0 0 20px #ffaa00;}
+        }
+        .lcd-warning { animation: warning-flash 1.5s infinite; }
+
+        .led-screen {
+            background-color: #050a05;
+            box-shadow: inset 0px 0px 10px rgba(0,0,0,1), 0 1px 0 rgba(255,255,255,0.1);
+            border: 2px solid #000; border-radius: 4px;
+            font-family: 'Orbitron', monospace;
+            position: relative; overflow: hidden;
+        }
+
+        /* Botões Mecânicos */
+        .mech-btn {
+            background: linear-gradient(to bottom, #4a4e59 0%, #2a2d34 100%);
+            border: none; border-radius: 6px;
+            box-shadow: 0 6px 0 #15171a, 0 8px 10px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.2);
+            color: #ccc; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; transition: all 0.1s; cursor: pointer; text-shadow: 0 -1px 0 #000;
+        }
+        .mech-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #15171a, 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 3px rgba(0,0,0,0.5); }
+        .mech-btn-master { background: linear-gradient(to bottom, #ff4d4d 0%, #b30000 100%); box-shadow: 0 8px 0 #660000, 0 10px 15px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.4); color: #fff; }
+        .mech-btn-master:active:not(:disabled) { transform: translateY(6px); box-shadow: 0 2px 0 #660000, 0 2px 5px rgba(0,0,0,0.8); }
+        .mech-btn-master:disabled { background: #333; box-shadow: 0 8px 0 #111; color: #555; cursor: not-allowed; }
+
+        /* Dinâmica do Modal Principal */
+        #calculator-modal { transition: opacity 0.2s ease, visibility 0.2s ease; }
+        .modal-chassis { transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #calculator-modal.active .modal-chassis { transform: scale(1); }
+
+        /* --- CONSOLE SUPERIOR DE EDIÇÃO DE VARIÁVEIS (TELEMETRIA) --- */
+        .super-editor-panel {
+            position: fixed;
+            background: linear-gradient(135deg, #11141a 0%, #0a0c10 100%);
+            border: 2px solid var(--led-cyan);
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(0, 255, 255, 0.1), 0 0 30px rgba(0, 255, 255, 0.2);
+            z-index: 100000; display: none; width: 360px; flex-direction: column; overflow: hidden;
+            font-family: 'Rajdhani', sans-serif; transform: scale(0.9); opacity: 0;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .super-editor-panel.active { display: flex; transform: scale(1); opacity: 1; }
+        
+        .super-dial-container {
+            display: flex; align-items: center; justify-content: space-between; background: #000;
+            padding: 10px; border-radius: 6px; border: 1px solid #333; box-shadow: inset 0 5px 10px rgba(0,0,0,0.8);
+        }
+        .super-dial-btn {
+            background: #222; border: 1px solid #444; color: var(--led-cyan);
+            width: 40px; height: 40px; font-size: 1.5rem; font-weight: bold;
+            border-radius: 4px; cursor: pointer; transition: all 0.1s;
+        }
+        .super-dial-btn:active { background: var(--led-cyan); color: #000; transform: scale(0.9); }
+        
+        .impact-box {
+            border-left: 3px solid; padding: 8px 12px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.02); border-radius: 0 4px 4px 0;
+        }
+        .impact-box.up { border-left-color: var(--led-cyan); }
+        .impact-box.down { border-left-color: var(--led-amber); }
+
+        .editable-var {
+            display: inline-block; background: rgba(0, 255, 255, 0.1);
+            border-bottom: 1px dashed var(--led-cyan); cursor: pointer;
+            padding: 0 4px; border-radius: 2px; transition: all 0.2s;
+        }
+        .editable-var:hover { background: var(--led-cyan); color: #000; }
+
+        /* --- CARDS DE INSIGHT DAS OPÇÕES (Hover Explanatório) --- */
+        .option-insight-panel {
+            position: fixed;
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--led-cyan);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.9), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            border-radius: 6px;
+            z-index: 100001;
+            width: 280px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(5px) scale(0.95);
+            transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: none;
+            padding: 12px;
+        }
+        .option-insight-panel.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .academic-ref { border-left: 2px solid var(--led-amber); padding-left: 8px; margin-bottom: 8px; font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #aaa; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050a05; border-left: 1px solid #111; }
+        ::-webkit-scrollbar-thumb { background: #3f434c; border-radius: 3px; }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.invisible{visibility:hidden}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.right-2{right:0.5rem}.top-2{top:0.5rem}.left-2{left:0.5rem}.z-10{z-index:10}.z-0{z-index:0}.z-40{z-index:40}.z-20{z-index:20}.col-span-3{grid-column:span 3 / span 3}.col-span-4{grid-column:span 4 / span 4}.col-span-5{grid-column:span 5 / span 5}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mt-2{margin-top:0.5rem}.mt-\[-10px\]{margin-top:-10px}.mt-4{margin-top:1rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mt-6{margin-top:1.5rem}.ml-1{margin-left:0.25rem}.mb-3{margin-bottom:0.75rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-screen{height:100vh}.h-12{height:3rem}.h-32{height:8rem}.h-full{height:100%}.h-14{height:3.5rem}.h-20{height:5rem}.h-3{height:0.75rem}.h-\[90vh\]{height:90vh}.h-1\.5{height:0.375rem}.h-48{height:12rem}.max-h-\[30vh\]{max-height:30vh}.w-24{width:6rem}.w-64{width:16rem}.w-80{width:20rem}.w-full{width:100%}.w-3{width:0.75rem}.w-1\.5{width:0.375rem}.min-w-\[36px\]{min-width:36px}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}@keyframes ping{75%, 100%{transform:scale(2);opacity:0}}.animate-ping{animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-0{gap:0px}.gap-3{gap:0.75rem}.gap-6{gap:1.5rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.scroll-smooth{scroll-behavior:smooth}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-lg{border-radius:0.5rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-4{border-width:4px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l{border-left-width:1px}.border-r-4{border-right-width:4px}.border-b-4{border-bottom-width:4px}.border-t-2{border-top-width:2px}.border-l-2{border-left-width:2px}.border-\[\#111\]{--tw-border-opacity:1;border-color:rgb(17 17 17 / var(--tw-border-opacity, 1))}.border-\[\#222\]{--tw-border-opacity:1;border-color:rgb(34 34 34 / var(--tw-border-opacity, 1))}.border-black{--tw-border-opacity:1;border-color:rgb(0 0 0 / var(--tw-border-opacity, 1))}.border-gray-700{--tw-border-opacity:1;border-color:rgb(55 65 81 / var(--tw-border-opacity, 1))}.border-gray-800{--tw-border-opacity:1;border-color:rgb(31 41 55 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.bg-\[\#050B14\]{--tw-bg-opacity:1;background-color:rgb(5 11 20 / var(--tw-bg-opacity, 1))}.bg-\[\#111\]{--tw-bg-opacity:1;background-color:rgb(17 17 17 / var(--tw-bg-opacity, 1))}.bg-\[\#1a1c20\]{--tw-bg-opacity:1;background-color:rgb(26 28 32 / var(--tw-bg-opacity, 1))}.bg-black\/80{background-color:rgb(0 0 0 / 0.8)}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-\[\#1e2025\]{--tw-bg-opacity:1;background-color:rgb(30 32 37 / var(--tw-bg-opacity, 1))}.bg-black\/50{background-color:rgb(0 0 0 / 0.5)}.bg-gray-600{--tw-bg-opacity:1;background-color:rgb(75 85 99 / var(--tw-bg-opacity, 1))}.bg-gray-700{--tw-bg-opacity:1;background-color:rgb(55 65 81 / var(--tw-bg-opacity, 1))}.bg-\[\#1a252c\]{--tw-bg-opacity:1;background-color:rgb(26 37 44 / var(--tw-bg-opacity, 1))}.bg-\[url\(\'data\:image\/svg\+xml\;base64\2c PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiMwMDAiLz48cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMzMzIi8\+PC9zdmc\+\'\)\]{background-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiMwMDAiLz48cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMzMzIi8+PC9zdmc+')}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.from-\[\#222\]{--tw-gradient-from:#222 var(--tw-gradient-from-position);--tw-gradient-to:rgb(34 34 34 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-\[\#444\]{--tw-gradient-from:#444 var(--tw-gradient-from-position);--tw-gradient-to:rgb(68 68 68 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-\[\#111\]{--tw-gradient-to:#111 var(--tw-gradient-to-position)}.to-\[\#222\]{--tw-gradient-to:#222 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-5{padding:1.25rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.py-4{padding-top:1rem;padding-bottom:1rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.pb-1{padding-bottom:0.25rem}.pb-2{padding-bottom:0.5rem}.pr-2{padding-right:0.5rem}.pt-6{padding-top:1.5rem}.pl-2{padding-left:0.5rem}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[9px\]{font-size:9px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-\[2\.5rem\]{font-size:2.5rem}.font-bold{font-weight:700}.font-black{font-weight:900}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.tracking-tighter{letter-spacing:-0.05em}.text-gray-300{--tw-text-opacity:1;color:rgb(209 213 219 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-200{--tw-text-opacity:1;color:rgb(229 231 235 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-yellow-500{--tw-text-opacity:1;color:rgb(234 179 8 / var(--tw-text-opacity, 1))}.opacity-50{opacity:0.5}.opacity-0{opacity:0}.opacity-40{opacity:0.4}.opacity-20{opacity:0.2}.shadow-\[10px_0_20px_rgba\(0\2c 0\2c 0\2c 0\.5\)\]{--tw-shadow:10px 0 20px rgba(0,0,0,0.5);--tw-shadow-colored:10px 0 20px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_0_50px_rgba\(0\2c 0\2c 0\2c 1\)\]{--tw-shadow:0 0 50px rgba(0,0,0,1);--tw-shadow-colored:0 0 50px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_0_8px_\#f00\]{--tw-shadow:0 0 8px #f00;--tw-shadow-colored:0 0 8px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_0_8px_\#00ffff\]{--tw-shadow:0 0 8px #00ffff;--tw-shadow-colored:0 0 8px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:border-gray-500:hover{--tw-border-opacity:1;border-color:rgb(107 114 128 / var(--tw-border-opacity, 1))}.hover\:text-black:hover{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity, 1))}.hover\:text-red-500:hover{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.hover\:shadow-\[0_0_15px_var\(--led-cyan\)\]:hover{--tw-shadow:0 0 15px var(--led-cyan);--tw-shadow-colored:0 0 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}}@media (min-width: 1280px){.xl\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style><style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,#onetap_google_intermediate_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,.adthrive-auto-injected-player-container,.adthrive[id^="cls-video-container"]:has(.adthrive-auto-injected-player-container),#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- TOOLTIP GERAL (Visão de Dados) -->
+    <div id="microcard-tooltip" class="microcard-panel fixed w-80 flex flex-col overflow-hidden invisible">
+        <div class="bg-[#111] p-2 flex justify-between items-center border-b border-gray-700">
+            <span class="text-xs font-bold text-led-cyan tracking-widest"><i class="fa-solid fa-microchip"></i> VISÃO DE DADOS</span>
+        </div>
+        <div class="flex bg-[#1a1c20] text-[10px] uppercase font-bold tracking-wider cursor-pointer border-b border-gray-700" id="mc-tabs">
+            <div class="mc-tab flex-1 text-center py-2 active" onclick="switchTab(0)">Conceito</div>
+            <div class="mc-tab flex-1 text-center py-2 border-l border-gray-700" onclick="switchTab(1)">Impacto</div>
+            <div class="mc-tab flex-1 text-center py-2 border-l border-gray-700" onclick="switchTab(2)">Ex. PME</div>
+        </div>
+        <div class="p-4 text-sm text-gray-300 font-sans leading-relaxed h-32 overflow-y-auto" id="mc-content"></div>
+    </div>
+
+    <!-- TOOLTIP DE INSIGHT DINÂMICO (Hover nas opções de resposta) -->
+    <div id="option-insight-tooltip" class="option-insight-panel" style="display: none; top: 368.047px; left: 368px;">
+        <strong class="text-[10px] text-led-cyan uppercase block mb-2 border-b border-gray-700 pb-1 tracking-widest flex items-center gap-2">
+            <i class="fa-solid fa-eye animate-pulse"></i> IMPACTO DA ESCOLHA
+        </strong>
+        <p class="text-xs text-gray-300 font-sans leading-tight" id="option-insight-text">Deu lucratividade forte e verdadeira, entretanto puncionada irresponsavelmente pelos empresários de antemão sem guardar parcelas mínimas de capital protetivo.</p>
+    </div>
+
+    <!-- CONSOLE DE TELEMETRIA PRINCIPAL (Disparado ao clicar na fórmula ou no escopo de variáveis) -->
+    <div id="super-var-editor" class="super-editor-panel">
+        <div class="bg-[#050B14] p-3 border-b border-led-cyan flex justify-between items-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url(&#39;data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiMwMDAiLz48cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMzMzIi8+PC9zdmc+&#39;)] opacity-50"></div>
+            <span class="text-sm font-bold text-led-cyan tracking-widest flex items-center gap-2 z-10">
+                <i class="fa-solid fa-crosshairs animate-pulse"></i> 
+                CALIBRAÇÃO: <span id="super-var-title">VAR</span>
+            </span>
+            <button onclick="closeSuperEditor()" class="text-gray-400 hover:text-red-500 z-10 transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        
+        <div class="p-4 flex flex-col gap-4">
+            <p class="text-xs text-gray-300 leading-relaxed font-sans" id="super-var-desc"></p>
+            
+            <div class="super-dial-container">
+                <button class="super-dial-btn" onclick="adjustSuperVar(-10)">-</button>
+                <div class="retro-lcd-display w-24 h-12 text-2xl" id="super-var-lcd">0</div>
+                <button class="super-dial-btn" onclick="adjustSuperVar(10)">+</button>
+            </div>
+            <div class="text-center mt-[-10px]">
+                <span class="text-[9px] text-gray-500 uppercase tracking-widest cursor-pointer hover:text-led-cyan" onclick="document.getElementById(&#39;super-var-manual&#39;).classList.toggle(&#39;hidden&#39;)">
+                    [ INSERÇÃO MANUAL ]
+                </span>
+                <input type="number" id="super-var-manual" class="hidden w-full mt-2 bg-[#111] text-led-cyan border border-gray-700 p-1 text-center font-mono text-sm outline-none focus:border-led-cyan rounded" onchange="syncManualInput()">
+            </div>
+
+            <div class="flex flex-col gap-2 mt-2">
+                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest border-b border-gray-800 pb-1">Impacto Executivo (PME)</div>
+                <div class="impact-box up">
+                    <span class="text-[10px] font-bold text-led-cyan uppercase block mb-1"><i class="fa-solid fa-arrow-up text-[9px]"></i> Elevação do Valor</span>
+                    <span class="text-xs text-gray-400 leading-tight block" id="super-var-up-effect"></span>
+                </div>
+                <div class="impact-box down">
+                    <span class="text-[10px] font-bold text-led-amber uppercase block mb-1"><i class="fa-solid fa-arrow-down text-[9px]"></i> Redução do Valor</span>
+                    <span class="text-xs text-gray-400 leading-tight block" id="super-var-down-effect"></span>
+                </div>
+            </div>
+
+            <button onclick="fireSuperVar(event)" class="mech-btn w-full py-3 mt-2 text-sm flex items-center justify-center gap-2 border border-led-cyan text-led-cyan hover:bg-led-cyan hover:text-black hover:shadow-[0_0_15px_var(--led-cyan)]">
+                <i class="fa-solid fa-rocket"></i> SOBRESCREVER &amp; DISPARAR
+            </button>
+        </div>
+    </div>
+
+    <!-- SIDEBAR: Painel Lateral de Controle -->
+    <aside class="w-64 brushed-metal flex flex-col justify-between h-full z-10 border-r-4 border-black relative shadow-[10px_0_20px_rgba(0,0,0,0.5)]">
+        <div class="p-4 border-b-2 border-[#111]">
+            <div class="w-full bg-[#050B14] rounded-lg p-2 shadow-inner border border-[#222] flex justify-center items-center">
+                <!-- LOGO AULATOTAL FORNECIDA -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="100%" height="auto">
+                    <defs color-interpolation-filters="sRGB">
+                        <lineargradient id="a"><stop stop-color="#041126"></stop><stop offset=".45" stop-color="#03101f"></stop><stop offset="1" stop-color="#020a14"></stop></lineargradient>
+                        <radialgradient id="b" cx=".14" cy=".28" r=".45"><stop stop-color="#0e386d" stop-opacity=".5"></stop><stop offset=".4" stop-color="#0a2b55" stop-opacity=".16"></stop><stop offset="1" stop-color="#0a2b55" stop-opacity="0"></stop></radialgradient>
+                        <lineargradient id="c" y2="1"><stop stop-color="#2fa8f5"></stop><stop offset="1" stop-color="#1674b8"></stop></lineargradient>
+                        <lineargradient id="d" x2="0" y2="1"><stop stop-color="#155c90"></stop><stop offset="1" stop-color="#0a2f4b"></stop></lineargradient>
+                        <lineargradient id="e" x1="1" x2="0" y2="1"><stop stop-color="#114d78"></stop><stop offset="1" stop-color="#08263b"></stop></lineargradient>
+                        <lineargradient id="f"><stop stop-color="#24d4e6"></stop><stop offset="1" stop-color="#14bcd2"></stop></lineargradient>
+                        <filter id="g" x="-.2" y="-.2" width="1.4" height="1.4"><fegaussianblur in="SourceAlpha" stdDeviation="10"></fegaussianblur><feoffset dy="8" result="a"></feoffset><feflood flood-opacity=".35"></feflood><fecomposite in2="a" operator="in"></fecomposite><fecomposite in="SourceGraphic" operator="over"></fecomposite></filter>
+                        <filter id="h" x="-.5" y="-.5" width="2" height="2"><fegaussianblur in="SourceAlpha" stdDeviation="4" result="a"></fegaussianblur><feflood flood-color="#ffd21a" flood-opacity=".45"></feflood><fecomposite in2="a" operator="in"></fecomposite><fecomposite in="SourceGraphic" operator="over"></fecomposite></filter>
+                    </defs>
+                    <rect width="1200" height="400" rx="12" fill="url(#a)"></rect>
+                    <rect width="1200" height="400" rx="12" fill="url(#b)"></rect>
+                    <g transform="matrix(.965 0 0 .965 -53 -162)" filter="url(#g)">
+                        <g transform="matrix(.1 0 0 -.1 0 1024)">
+                            <path d="m3990 7909c0-72 30-470 35-479 5-8 105-15 105-7 0 1 18 114 38 250 21 137 35 250 30 253s-54 8-109 11l-99 6v-34zm366 -300c-65-125-119-231-120-235-1-10 75-63 90-64 6 0 50 51 99 113 49 61 121 153 161 204 54 67 70 94 61 101-7 5-48 32-92 59l-81 50-118-228zm393 -187c-52-32-148-91-214-131-66-41-128-81-138-91-18-17-18-19 8-61 15-24 29-45 30-47 5-6 480 170 491 181 5 4-67 187-81 204-1 2-44-23-96-55z" fill="#ffd21a" filter="url(#h)"></path>
+                            <path d="m3833 7202c-123-54-223-101-223-105 0-8 58-74 308-350l131-145 168 70c92 38 191 78 220 89l52 20-112 136c-62 74-156 190-210 257-54 66-101 122-105 123-4 0-107-42-229-95zm-773 51c-40-15-456-205-463-212-4-4 96-58 223-120l231-113 177 80c249 113 311 143 316 151s-35 29-276 142c-166 78-179 83-208 72zm-630 -274c-83-39-334-150-397-176-35-14-63-28-63-32 0-3 21-15 48-25 26-10 128-56 228-102 99-46 193-88 207-93 23-9 48 0 189 66 90 41 201 93 248 115l85 40-60 31c-112 57-416 197-428 197-7 0-32-10-57-21zm853 -130c-73-39-133-75-133-80 0-10 147-86 153-79 9 10 127 219 127 224 0 12-18 4-147-65zm-491 -238c-128-60-235-110-237-113-2-2 46-26 108-53s159-72 217-100c180-88 133-92 401 31 251 115 245 111 237 119-9 10-472 225-482 225-6 0-116-49-244-109zm1248 -549c-14-2-98-33-187-68s-165-64-168-64-5 6-5 14c0 12-20 26-36 26-2 0-4-45-4-100s4-100 9-100 129 53 275 119c255 113 266 119 244 133-39 24-102 44-128 40z" fill="url(#c)"></path>
+                            <path d="m3553 7008c-16-24-63-101-103-173-40-71-80-138-88-147s-12-21-11-27c2-5 68-41 147-80l142-71v-412l42-39c23-21 45-35 49-31 3 4 33 59 66 122s95 181 137 262l78 148-22 27c-23 30-187 216-280 318-30 33-72 80-92 103l-36 43-29-43zm-1633 -606v-329l58-31c31-16 143-69 247-117 105-48 196-92 203-97 9-8 12 58 12 325 0 255-3 337-12 345-15 12-452 216-485 226l-23 7v-329zm580 -270v-329l123-58c67-32 182-87 255-121l132-63v659l-127 64c-136 67-368 176-377 176-3 0-6-148-6-328zm-580 -476c0-286 2-327 16-341 9-9 94-53 188-98s204-98 244-117l72-36v683l-122 58c-118 56-244 115-335 156-24 10-47 19-53 19s-10-112-10-324zm2090 220c-118-56-243-116-277-132l-62-29-1-332c0-183 2-333 5-333 15 0 532 259 543 272 9 12 12 89 10 336l-3 321-215-103z" fill="url(#d)"></path>
+                            <path d="m4370 6689c-74-33-166-73-205-90-38-16-75-33-81-37-22-13-278-507-272-522 2-4 89 26 193 67 105 41 210 82 234 91l45 17 117 250c110 232 131 286 112 284-5 0-69-27-143-60zm-1050 -352-245-122-3-328-2-328 22 7c13 4 93 39 178 79s190 88 233 108l77 36v335c0 185-3 336-7 335-5 0-118-55-253-122zm-818 -958 3-341 240-115c132-63 246-117 253-120 9-4 12 67 12 339v343l-233 111c-128 61-243 115-255 118l-22 7 2-342zm1063 332c-6-5-109-54-230-110s-230-109-242-117l-23-14v-691l23 7c12 3 128 57 257 119l235 113 3 351c1 193-1 351-6 351-4 0-12-4-17-9z" fill="url(#e)"></path>
+                        </g>
+                    </g>
+                    <g transform="translate(447 163)">
+                        <text style="fill:#f5f7fa;font:900 98px Montserrat,Inter,Arial,sans-serif;letter-spacing:-2.5px" textLength="645" lengthAdjust="spacingAndGlyphs">AulaTotal</text>
+                        <text y="84" style="fill:url(#f);font:900 82px Montserrat,Inter,Arial,sans-serif;letter-spacing:2px" textLength="645" lengthAdjust="spacingAndGlyphs">COGNITIVE</text>
+                        <path d="M0 108h645" stroke="#19c7d9" stroke-width="2" opacity=".92"></path>
+                        <text y="150" style="fill:#fff;font:700 24px Inter,Arial,sans-serif;letter-spacing:2px" textLength="645">FORMAÇÃO E CONTEÚDO</text>
+                    </g>
+                </svg>
+            </div>
+            
+            <div class="mt-4 led-screen p-2 text-center text-xs">
+                <span class="text-led-cyan block font-bold" id="sys-status">BUSINESS MASTERS</span>
+                <span class="text-gray-400">JORNADA DO SUCESSO</span>
+            </div>
+        </div>
+
+        <div class="p-4 flex-1 flex flex-col justify-end gap-4">
+            <div class="panel-groove p-3">
+                <div class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-2 border-b border-gray-700 pb-1">Controles Principais</div>
+                <button onclick="resetDashboard()" class="mech-btn w-full py-3 mb-2 text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-power-off text-red-500"></i> REINICIAR SISTEMA
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL DO DASHBOARD -->
+    <main class="flex-1 flex flex-col h-full bg-[#1a1c20] relative">
+        <header class="h-14 brushed-metal flex items-center justify-between px-6 border-b-2 border-black z-0">
+            <div class="flex items-center gap-4">
+                <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#f00]" id="header-pulse"></div>
+                <h1 class="text-xl font-bold tracking-widest text-gray-200 uppercase">CALCULADORA DO ÍNDICE GERAL DE VIABILIDADE DO NEGÓCIO</h1>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400 font-bold uppercase tracking-widest">ÍNDICE GLOBAL</span>
+                <div class="retro-lcd-display px-4 py-1 text-xl tracking-widest w-24" id="global-score-text" style="opacity: 1;">30.3</div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6" id="calculators-grid">
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Oportunidade Real</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Avaliação de Opções Reais (ROV)</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-red-500 font-bold font-mono text-lg tracking-wider">
+                                4%
+                            </div>
+                            <button onclick="openModal(&#39;m1&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Risco de Crédito</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Probabilidade de Calote (Default)</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-red-500 font-bold font-mono text-lg tracking-wider">
+                                35%
+                            </div>
+                            <button onclick="openModal(&#39;m2&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Capacidade OEE</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Eficácia Global do Recurso</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-red-500 font-bold font-mono text-lg tracking-wider">
+                                10%
+                            </div>
+                            <button onclick="openModal(&#39;m3&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Sincronia CCC</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Ciclo de Conversão de Caixa</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-red-500 font-bold font-mono text-lg tracking-wider">
+                                33%
+                            </div>
+                            <button onclick="openModal(&#39;m4&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Criação de Valor</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Valor Econômico Adicionado</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-yellow-500 font-bold font-mono text-lg tracking-wider">
+                                50%
+                            </div>
+                            <button onclick="openModal(&#39;m5&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Proporção da Garantia</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Loan-to-Value &amp; Haircut Risco</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-led-cyan font-bold font-mono text-lg tracking-wider">
+                                100%
+                            </div>
+                            <button onclick="openModal(&#39;m6&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Resistência a Choque</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Cash Flow at Risk (Limiar)</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-red-500 font-bold font-mono text-lg tracking-wider">
+                                10%
+                            </div>
+                            <button onclick="openModal(&#39;m7&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">Capacidade Residual</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">Geração Efetiva do Valor Terminal</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center text-red-500 font-bold font-mono text-lg tracking-wider">
+                                0%
+                            </div>
+                            <button onclick="openModal(&#39;m8&#39;)" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </main>
+
+    <!-- MODAL PRINCIPAL DE OPERAÇÃO (A Interface de Hardware) -->
+    <div id="calculator-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 flex items-center justify-center p-4 opacity-0 invisible">
+        <div class="modal-chassis brushed-metal w-full max-w-7xl h-[90vh] rounded-xl border-4 border-black flex flex-col overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,1)]">
+            
+            <div class="h-20 border-b-4 border-black bg-gradient-to-b from-[#222] to-[#111] flex items-center justify-between px-8 relative z-10">
+                <div>
+                    <h2 id="modal-title" class="text-2xl font-black text-gray-200 tracking-widest uppercase">Capacidade Residual</h2>
+                    <p id="modal-academic" class="text-xs text-gray-400 font-mono tracking-wider">Geração Efetiva do Valor Terminal</p>
+                </div>
+                <button onclick="closeModal()" class="mech-btn px-4 py-2 flex items-center gap-2">
+                    <i class="fa-solid fa-eject text-red-500"></i> FECHAR
+                </button>
+            </div>
+
+            <div class="flex-1 grid grid-cols-12 gap-0 overflow-hidden relative z-10">
+                
+                <!-- PARÂMETROS DE ENTRADA -->
+                <div class="col-span-4 bg-[#1e2025] border-r-4 border-black p-6 overflow-y-auto relative">
+                    <div class="flex items-center gap-2 mb-6 border-b border-gray-700 pb-2">
+                        <i class="fa-solid fa-sliders text-gray-400"></i>
+                        <h3 class="text-lg font-bold tracking-widest text-gray-300">PARÂMETROS DA OPERAÇÃO</h3>
+                    </div>
+                    <div id="modal-input-area" class="space-y-8 relative">
+                    <div class="mb-6 relative">
+                        <div class="flex items-center justify-between mb-3 border-l-2 border-led-cyan pl-2">
+                            <h4 class="text-sm font-bold text-gray-200 tracking-wider uppercase">Balanço Final de Estrutura</h4>
+                        </div>
+                        <div>
+                        <div onclick="selectVariable(&#39;residual_value&#39;, 0, event)" onmouseenter="showOptionTooltip(event, &#39;m8&#39;, 0, 0)" onmouseleave="hideOptionTooltip()" id="opt-wrap-residual_value-0" class="opt-wrap-residual_value flex items-center gap-3 p-3 rounded border hover:border-gray-500 cursor-pointer transition-colors mb-2 relative overflow-hidden border-led-cyan bg-[#1a252c]">
+                            <div id="led-residual_value-0" class="led-indicator-residual_value w-3 h-3 rounded-full bg-led-cyan shadow-[0_0_8px_#00ffff] border border-transparent"></div>
+                            <div class="px-2 py-1 bg-gradient-to-b from-[#444] to-[#222] border border-black rounded text-[10px] font-mono text-gray-300 font-bold shadow-lg min-w-[36px] text-center z-10">
+                                0
+                            </div>
+                            <span class="text-xs text-gray-400 flex-1 font-semibold leading-tight z-10">Corrida sem Legado</span>
+                        </div>
+                    
+                        <div onclick="selectVariable(&#39;residual_value&#39;, 30, event)" onmouseenter="showOptionTooltip(event, &#39;m8&#39;, 0, 1)" onmouseleave="hideOptionTooltip()" id="opt-wrap-residual_value-30" class="opt-wrap-residual_value flex items-center gap-3 p-3 bg-[#111] rounded border border-gray-800 hover:border-gray-500 cursor-pointer transition-colors mb-2 relative overflow-hidden">
+                            <div id="led-residual_value-30" class="led-indicator-residual_value w-3 h-3 rounded-full bg-gray-700 shadow-inner border border-black"></div>
+                            <div class="px-2 py-1 bg-gradient-to-b from-[#444] to-[#222] border border-black rounded text-[10px] font-mono text-gray-300 font-bold shadow-lg min-w-[36px] text-center z-10">
+                                30
+                            </div>
+                            <span class="text-xs text-gray-400 flex-1 font-semibold leading-tight z-10">Consumo Pessoal Tóxico</span>
+                        </div>
+                    
+                        <div onclick="selectVariable(&#39;residual_value&#39;, 100, event)" onmouseenter="showOptionTooltip(event, &#39;m8&#39;, 0, 2)" onmouseleave="hideOptionTooltip()" id="opt-wrap-residual_value-100" class="opt-wrap-residual_value flex items-center gap-3 p-3 bg-[#111] rounded border border-gray-800 hover:border-gray-500 cursor-pointer transition-colors mb-2 relative overflow-hidden">
+                            <div id="led-residual_value-100" class="led-indicator-residual_value w-3 h-3 rounded-full bg-gray-700 shadow-inner border border-black"></div>
+                            <div class="px-2 py-1 bg-gradient-to-b from-[#444] to-[#222] border border-black rounded text-[10px] font-mono text-gray-300 font-bold shadow-lg min-w-[36px] text-center z-10">
+                                100
+                            </div>
+                            <span class="text-xs text-gray-400 flex-1 font-semibold leading-tight z-10">Cristalização Patrimonial Permanente</span>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- MOTOR MATEMÁTICO (PINBALL & TELEMETRIA) -->
+                <div class="col-span-5 bg-[#111] p-6 flex flex-col border-r-4 border-black relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-led-magenta animate-pulse"></i>
+                            <h3 class="text-lg font-bold tracking-widest text-gray-300">NÚCLEO MATEMÁTICO</h3>
+                        </div>
+                    </div>
+
+                    <!-- PLACA PINBALL AUTO-AJUSTÁVEL -->
+                    <div class="pinball-board flex-1 mb-6 relative" id="pinball-board" onmousemove="tiltBoard(event)" onmouseleave="resetBoardTilt()" style="transform: perspective(1000px) rotateX(0deg) rotateY(0deg);">
+                        <div class="absolute top-2 right-2 text-[9px] text-led-cyan uppercase font-bold tracking-widest border border-led-cyan px-2 py-1 rounded bg-black/50 blink-cursor z-20 pointer-events-none">
+                            [ TRAVA DE ALVO: CLIQUE NAS VARIÁVEIS ]
+                        </div>
+                        <div id="math-formula-display" class="math-render-area" style="transform: scale(0.854871);"><span><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>V</mi><mo>=</mo><mo>∑</mo><mfrac><mrow><mi>F</mi><mi>C</mi><msub><mi>F</mi><mi>t</mi></msub></mrow><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mi>k</mi><msup><mo stretchy="false">)</mo><mi>t</mi></msup></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>T</mi><mi>V</mi></mrow><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mi>k</mi><msup><mo stretchy="false">)</mo><mi>N</mi></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex"> V = \sum \frac{FCF_t}{(1+k)^t} + \frac{\htmlId{var-residual_value}{TV}}{(1+k)^N} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.2222em;">V</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.2963em; vertical-align: -0.936em;"></span><span class="mop op-symbol large-op" style="position: relative; top: 0em;">∑</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3603em;"><span class="" style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7196em;"><span class="" style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span></span></span></span></span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0715em;">FC</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.1389em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.2806em;"><span class="" style="top: -2.55em; margin-left: -0.1389em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.936em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 2.2963em; vertical-align: -0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3603em;"><span class="" style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7673em;"><span class="" style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.109em;">N</span></span></span></span></span></span></span></span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="enclosing math-target-var hit" id="var-residual_value"><span class="mord mathnormal" style="margin-right: 0.1389em;">T</span><span class="mord mathnormal" style="margin-right: 0.2222em;">V</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.936em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></span></div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-end mb-2">
+                            <h4 class="text-xs text-gray-500 font-bold tracking-widest uppercase">Microvariáveis de Memória (Escopo)</h4>
+                        </div>
+                        <div class="panel-groove led-screen h-32 p-4 text-led-cyan text-sm overflow-y-auto" id="math-scope-display"><div class="font-mono">{
+  <span class="text-gray-400">"residual_value"</span>: <span class="editable-var" onclick="openSuperEditor(&#39;residual_value&#39;, event)">0</span>
+}</div></div>
+                    </div>
+                </div>
+
+                <!-- SAÍDA DE DADOS E BASE CIENTÍFICA -->
+                <div class="col-span-3 bg-[#1e2025] p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
+                            <i class="fa-solid fa-book-journal-whills text-gray-400"></i>
+                            <h3 class="text-sm font-bold tracking-widest text-gray-300 uppercase">Base Científica</h3>
+                        </div>
+                        <div id="modal-references" class="space-y-2 max-h-[30vh] overflow-y-auto pr-2 panel-groove p-3"><div class="academic-ref"><strong>Damodaran, A. (2012)</strong>. <em>Investment Valuation</em>.</div></div>
+                    </div>
+
+                    <div class="mt-6 border-t-2 border-gray-800 pt-6 text-center">
+                        <h4 class="text-xs text-gray-500 font-bold mb-2 tracking-widest uppercase">Índice Computado</h4>
+                        
+                        <div id="modal-live-score-container" class="retro-lcd-display h-20 mb-6 lcd-crash">
+                            <div class="text-[2.5rem] tracking-tighter" id="modal-live-score">0.0%</div>
+                        </div>
+                        
+                        <button onclick="saveCurrentModel()" class="mech-btn-master w-full py-4 text-xl tracking-widest" id="btn-save-model">
+                            COMPUTAR
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 0. MOTOR DE SINTETIZADOR DE ÁUDIO (Dopamina UX) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, duration, vol, slideToFreq = null) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            if(slideToFreq) {
+                osc.frequency.exponentialRampToValueAtTime(slideToFreq, audioCtx.currentTime + duration);
+            }
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function sfxShoot() { playTone(200, 'square', 0.4, 0.4, 1200); } 
+        function sfxHit() { playTone(1500, 'sine', 0.2, 0.5, 800); setTimeout(() => playTone(2000, 'triangle', 0.1, 0.3), 50); }
+        function sfxOpenConsole() { playTone(800, 'square', 0.1, 0.2); setTimeout(() => playTone(1200, 'sine', 0.15, 0.2), 100); }
+        function sfxDial() { playTone(400, 'triangle', 0.05, 0.1); }
+        function sfxSuccess() { playTone(440, 'triangle', 0.1, 0.3); setTimeout(() => playTone(554, 'triangle', 0.1, 0.3), 100); setTimeout(() => playTone(659, 'triangle', 0.4, 0.5), 200); }
+        function sfxOverdrive() { playTone(880, 'square', 0.1, 0.2); setTimeout(() => playTone(1108, 'square', 0.1, 0.2), 100); setTimeout(() => playTone(1318, 'square', 0.1, 0.2), 200); setTimeout(() => playTone(1760, 'square', 0.6, 0.4), 300); }
+        function sfxCrash() { playTone(150, 'sawtooth', 0.3, 0.8); setTimeout(() => playTone(100, 'sawtooth', 0.5, 0.9), 100); }
+        function sfxWarning() { playTone(300, 'square', 0.2, 0.4); setTimeout(() => playTone(250, 'square', 0.4, 0.4), 200); }
+
+        // --- 1. DICIONÁRIO DE DADOS EXPANDIDO (Com Mapeamento Balístico e Tooltips Detalhados) ---
+        const modelData = {
+            m1: {
+                id: 'm1', title: "Oportunidade Real", tagline: "Avaliação de Opções Reais (ROV)",
+                formulaMathjs: "min(100, (market_size * 0.4) + (validation_degree * 0.6))",
+                formulaLatex: "$$ V_{proj} = \\max\\left(0, \\alpha \\cdot \\htmlId{var-market_size}{\\text{TAM}} + \\beta \\cdot \\htmlId{var-validation_degree}{P(D)} - C_0 \\right) $$",
+                variables: { market_size: null, validation_degree: null },
+                varDetails: {
+                    market_size: {
+                        desc: "Tamanho prático do mercado endereçável (TAM). Na PME, reflete a facilidade de achar alguém para comprar seu estoque rapidamente.",
+                        up: "Diluição agressiva de custo fixo. Uma vez pago o aluguel, cada venda extra em um mercado amplo é lucro líquido puro.",
+                        down: "Saturação rápida. Você esgota os clientes do seu bairro velozmente e fica com o maquinário ocioso e estocado."
+                    },
+                    validation_degree: {
+                        desc: "Grau de Conversão P(D). Diferencia 'curtidas na internet' (Intenção vazia) de 'sinal pago na conta' (Compromisso real).",
+                        up: "Risco de encalhe despenca. Você só imobiliza capital de giro quando a venda já está matematicamente travada e faturada.",
+                        down: "Aposta cega. Você produz usando o próprio ego, correndo risco máximo de fluxo de caixa negativo ao errar a demanda."
+                    }
+                },
+                refs: ["<strong>Dixit & Pindyck (1994)</strong>. <em>Investment under Uncertainty</em>.", "<strong>Minardi, A. (2000)</strong>. <em>Teoria de Opções Reais Aplicada</em>."],
+                steps: [
+                    { 
+                        id: "market_size", title: "Amplitude do Mercado", 
+                        options: [
+                            { label: "Nicho restrito", value: 10, detail: "Mercado muito pequeno. Dificuldade severa de escalar diluindo custo fixo. Risco de saturação do público-alvo muito rápida." }, 
+                            { label: "Mercado validado", value: 40, detail: "Demanda existente, porém operando em cenário com barreira de entrada ou concorrência agressiva." }, 
+                            { label: "Expansão testada", value: 75, detail: "Canais de vendas já provaram conversão com custo de aquisição (CAC) favorável e previsível." }, 
+                            { label: "Demanda reprimida", value: 100, detail: "Cliente procurando ativamente o serviço. Liquidez total de estoque. Custo de venda tende a zero." }
+                        ] 
+                    },
+                    { 
+                        id: "validation_degree", title: "Grau de Validação", 
+                        options: [
+                            { label: "Intuição (Sem vínculo)", value: 0, detail: "Produção baseada em achismo. Aposta cega com risco total de imobilização do seu capital de giro." }, 
+                            { label: "Leads frios", value: 30, detail: "Pessoas demonstraram interesse superficial (ex: redes sociais), mas não colocaram dinheiro efetivo." }, 
+                            { label: "Aceites formais", value: 70, detail: "Propostas aprovadas por escrito. Forte intenção de compra, mas sem amarração jurídica ou financeira pesada." }, 
+                            { label: "Sinal na conta", value: 100, detail: "Risco mitigado com sucesso. O cliente depositou uma parcela. A operação agora se auto-financia." }
+                        ] 
+                    }
+                ]
+            },
+            m2: {
+                id: 'm2', title: "Risco de Crédito", tagline: "Probabilidade de Calote (Default)",
+                formulaMathjs: "min(100, (client_history * 0.5) + (contract_enforceability * 0.5))",
+                formulaLatex: "$$ P(Def) = \\frac{1}{1 + e^{-(\\beta_0 + \\beta_1 \\htmlId{var-client_history}{X_{hist}} + \\beta_2 \\htmlId{var-contract_enforceability}{X_{enf}})}} $$",
+                variables: { client_history: null, contract_enforceability: null },
+                varDetails: {
+                    client_history: {
+                        desc: "Histórico do sacado. Vender a prazo para quem você não conhece é agir como um banco, mas sem receber juros por isso.",
+                        up: "Zera a provisão de calote. O dinheiro da planilha se converte em saldo bancário real no dia estipulado.",
+                        down: "Ilusão contábil. A empresa fatura, paga o imposto da nota, mas não recebe do cliente, gerando furo letal no caixa."
+                    },
+                    contract_enforceability: {
+                        desc: "Força de execução da dívida. Se o cliente der cano, o que você tem na mão para forçar o bloqueio dos bens dele?",
+                        up: "Lastro forte (ex: Cartão). O risco de crédito foi transferido para a maquininha. O seu caixa da PME fica blindado.",
+                        down: "Venda na palavra. Sem lastro, o custo de um advogado para cobrar a dívida supera o valor do próprio calote."
+                    }
+                },
+                refs: ["<strong>Altman, E. I. (1968)</strong>. <em>Financial Ratios (Z-Score)</em>.", "<strong>Assaf Neto, A. (2020)</strong>. <em>Finanças Corporativas e Valor</em>."],
+                steps: [
+                    { 
+                        id: "client_history", title: "Histórico Creditício", 
+                        options: [
+                            { label: "Pessoa Física (Alto Risco)", value: 20, detail: "Vendas pulverizadas e informais para clientes de balcão sem nenhum filtro prévio de adimplência." }, 
+                            { label: "B2B sem histórico", value: 50, detail: "Empresas novas. Existe CNPJ ativo, mas o relacionamento comercial e de confiança nunca foi testado." }, 
+                            { label: "Recorrente pontual", value: 80, detail: "Cliente parceiro, constante e com pagamentos sempre em dia. Torna a receita de amanhã altamente previsível." }, 
+                            { label: "Gov/Corporação", value: 100, detail: "Entes governamentais ou multi-nacionais sólidas. Risco de calote e insolvência beirando o zero." }
+                        ] 
+                    },
+                    { 
+                        id: "contract_enforceability", title: "Força de Cobrança", 
+                        options: [
+                            { label: "Venda verbal", value: 0, detail: "Nenhuma garantia legal. Se o cliente não pagar, haverá perda total do valor da mercadoria investida." }, 
+                            { label: "Ordem / Boleto", value: 50, detail: "Formalização primária. Emitir boleto não garante o recebimento, e o processo de protesto e execução é burocrático." }, 
+                            { label: "Contrato assinado", value: 80, detail: "Título executivo extrajudicial forte. Permite ação imediata de cobrança e possível bloqueio de ativos do cliente fujão." }, 
+                            { label: "Cartão / Fundo", value: 100, detail: "Proteção máxima aplicada. O risco do calote é assumido pelo adquirente (cartão) ou pelo fundo garantidor (FGI)." }
+                        ] 
+                    }
+                ]
+            },
+            m3: {
+                id: 'm3', title: "Capacidade OEE", tagline: "Eficácia Global do Recurso",
+                formulaMathjs: "resource_availability * (know_how / 100)",
+                formulaLatex: "$$ OEE = \\htmlId{var-resource_availability}{Disp} \\times \\htmlId{var-know_how}{Perf} \\times Qual. $$",
+                variables: { resource_availability: null, know_how: null },
+                varDetails: {
+                    resource_availability: {
+                        desc: "Disponibilidade da estrutura. O seu gargalo operacional é o teto máximo de dinheiro que sua empresa consegue imprimir.",
+                        up: "Escala limpa. Você absorve um pico sazonal sem formar filas e sem atrasar a vida de quem já comprou antes.",
+                        down: "Sufocamento. Entrar em Black Friday sem equipe obriga hora extra cara e produz mercadorias defeituosas sob pressão."
+                    },
+                    know_how: {
+                        desc: "Curva de Performance. Processos virgens na empresa consomem o triplo do tempo de máquina para ficarem aceitáveis.",
+                        up: "Alta produtividade padrão. Custo de fabricação cai, margem de contribuição sobe. Você domina sua esteira.",
+                        down: "Explosão de sucata. Matéria-prima destruída por erros básicos de um time que nunca fez essa operação específica antes."
+                    }
+                },
+                refs: ["<strong>Nakajima, S. (1988)</strong>. <em>Introduction to TPM</em>."],
+                steps: [
+                    { 
+                        id: "resource_availability", title: "Disponibilidade (Gargalo)", 
+                        options: [
+                            { label: "Gargalo Crítico", value: 10, detail: "Sua estrutura está estourada hoje. Vender mais agora significa atrasar as entregas dos clientes que já pagaram." }, 
+                            { label: "Limite (Hora extra)", value: 50, detail: "Operando no talo da produtividade. Atender mais demanda significa queimar toda a margem de lucro pagando hora extra." }, 
+                            { label: "Capacidade ociosa", value: 85, detail: "Temos tempo de equipe e máquina livres. Basta reorganizar a escala atual para transformar esse tempo em dinheiro." }, 
+                            { label: "100% disponíveis", value: 100, detail: "Equipamento totalmente livre e ocioso, pronto para moer e produzir receita imediata para o negócio." }
+                        ] 
+                    },
+                    { 
+                        id: "know_how", title: "Domínio do Processo", 
+                        options: [
+                            { label: "Processo Inédito", value: 30, detail: "Sua empresa nunca fez isso. A equipe gastará muito material errando até descobrir o jeito certo de padronizar." }, 
+                            { label: "Depende de terceiros", value: 60, detail: "Você é um mero despachante de serviço. Sua marca e prazos dependem da boa vontade de um fornecedor terceirizado." }, 
+                            { label: "Processo dominado", value: 100, detail: "Núcleo central (Core Business) da PME. O time executa de forma mecânica e perfeita, errando quase nada." }
+                        ] 
+                    }
+                ]
+            },
+            m4: {
+                id: 'm4', title: "Sincronia CCC", tagline: "Ciclo de Conversão de Caixa",
+                formulaMathjs: "max(0, min(100, 100 - (((dso + dio) - dpo) / 90) * 100))",
+                formulaLatex: "$$ CCC = \\htmlId{var-dso}{DSO_{cli}} + \\htmlId{var-dio}{DIO_{est}} - \\htmlId{var-dpo}{DPO_{for}} $$",
+                variables: { dso: null, dio: null, dpo: null },
+                varDetails: {
+                    dso: {
+                        desc: "DSO (Prazo de Recebimento). O perigo letal do parcelamento alongado sem taxas de juros cobrindo o período.",
+                        up: "Esvaziamento do Giro. O imposto é pago na emissão da nota, mas o recurso pinga por meses. Causa colapso de folha de pagamento.",
+                        down: "Dinheiro limpo entra rápido (PIX). Fornece enorme poder de barganha para a empresa pagar seu fornecedor com descontos."
+                    },
+                    dio: {
+                        desc: "DIO (Prazo de Estoque). Estoque guardado na poeira não é riqueza, é capital financeiro paralisado e exposto a danos.",
+                        up: "Risco brutal de iliquidez. Todo seu lucro é um galpão lotado. Sem capital fluido, uma emergência fecha as portas da firma.",
+                        down: "Esteira contínua e enxuta (Cross-docking). O estoque nunca para. Ativos altamente rentabilizados girando caixa pesado."
+                    },
+                    dpo: {
+                        desc: "DPO (Prazo de Pagamento). A alavanca de ouro: fazer a sua operação girar financiando-se pelo bolso do seu fornecedor.",
+                        up: "Capital de giro negativo. Você recebe o dinheiro do cliente final muito antes do vencimento do boleto da fábrica produtora.",
+                        down: "Pressão imediata no caixa próprio. Pagar matéria-prima à vista imobiliza seu dinheiro antes da garantia real da venda."
+                    }
+                },
+                refs: ["<strong>Fleuriet, M. (2003)</strong>. <em>A dinâmica financeira (BR)</em>.", "<strong>Braga, R. (1991)</strong>. <em>Análise Dinâmica de Giro</em>."],
+                steps: [
+                    { 
+                        id: "dpo", title: "Prazo do Fornecedor (DPO)", 
+                        options: [
+                            { label: "À Vista (DPO=0)", value: 0, detail: "Pior fluxo possível. Seu dinheiro vivo sai do balanço da PME para custear peças que você ainda não conseguiu vender." }, 
+                            { label: "Prazo Base (DPO=30)", value: 30, detail: "Normalidade comercial. Oferta 30 dias de sobrevivência para produzir e encontrar o comprador." }, 
+                            { label: "Alavancado (DPO=60)", value: 60, detail: "Ótima negociação. Tempo abundante para girar o inventário, lucrar e usar a própria receita gerada para pagar a conta." }, 
+                            { label: "Consignação (DPO=90)", value: 90, detail: "Oásis financeiro. O fabricante segura todo o risco e você apenas devolve a ele a parte do custo se a venda acontecer." }
+                        ] 
+                    },
+                    { 
+                        id: "dio", title: "Tempo de Estoque (DIO)", 
+                        options: [
+                            { label: "Lento/Micos (DIO=90)", value: 90, detail: "Caixas imóveis juntando traças e ácaros. Você pagou o fabricante há séculos e continua preso sem ver a cor da receita." }, 
+                            { label: "Giro Médio (DIO=30)", value: 30, detail: "Reposição mensal compassada. Ideal para o balcão varejista exibir fartura visual de opções sem lotar a retaguarda." }, 
+                            { label: "Just-in-time (DIO=0)", value: 0, detail: "Zero mercadoria estocada antecipadamente. A ponte é perfeita: você fabrica com precisão apenas a quantia exigida pelo cliente." }
+                        ] 
+                    },
+                    { 
+                        id: "dso", title: "Recebimento do Cliente (DSO)", 
+                        options: [
+                            { label: "Parcelado Longo (DSO=90)", value: 90, detail: "Você assume o papel e o risco de ser o banco da família do seu comprador, esmagando a sua capacidade de reinvestir." }, 
+                            { label: "Ciclo Mensal (DSO=30)", value: 30, detail: "Requer um fluxo de retaguarda básico (Giro próprio) para honrar contas da primeira quinzena do mês." }, 
+                            { label: "Dinheiro Imediato (DSO=0)", value: 0, detail: "Transações por PIX, Dinheiro ou Débito blindam de vez o valor econômico recebido das garras corrosivas da inflação nacional." }, 
+                            { label: "Sinal Forte (DSO=-30)", value: -30, detail: "Adiantamento providencial. O próprio cliente paga a matéria-prima dele. Empresa gira e cresce sem injetar nada." }
+                        ] 
+                    }
+                ]
+            },
+            m5: {
+                id: 'm5', title: "Criação de Valor", tagline: "Valor Econômico Adicionado",
+                formulaMathjs: "min(100, (asset_class * 0.5) + (roi_spread * 0.5))",
+                formulaLatex: "$$ EVA = \\htmlId{var-roi_spread}{(ROIC - K_d)} \\times \\htmlId{var-asset_class}{\\text{Cap}_{inv}} $$",
+                variables: { asset_class: null, roi_spread: null },
+                varDetails: {
+                    asset_class: {
+                        desc: "Atribuição do Capital Injetado. Em que linha contábil o dinheiro recém chegado vai atuar? Despesas puras ou motores ativadores?",
+                        up: "Compra de maquinário produtivo (Capex ativo). A injeção alavanca uma curva permanente de produção pós-quitação bancária.",
+                        down: "Empréstimos giratórios. Dinheiro entrando pelo ralo para tampar sangramento de salários ou impostos sonegados, rolando a falência."
+                    },
+                    roi_spread: {
+                        desc: "O Spread Operacional (Margem do negócio abatendo o Custo da Dívida). É o teste absoluto de viabilidade para tomar créditos no mercado.",
+                        up: "A máquina devolve lucros tão pesados e imediatos que os juros mensais pagos são irrisórios dentro do demonstrativo financeiro.",
+                        down: "Subserviência aos juros compostos. Os lucros minguados do dono são redirecionados em 100% para sustentar amortizações bancárias sufocantes."
+                    }
+                },
+                refs: ["<strong>Stewart, G. B. (1991)</strong>. <em>The Quest for Value</em>."],
+                steps: [
+                    { 
+                        id: "asset_class", title: "Destinação do Capital", 
+                        options: [
+                            { label: "Tapação de buraco", value: 0, detail: "Pegar cheque especial ou financiamentos descontrolados para arcar salários de times que não se pagaram no mês." }, 
+                            { label: "Reformas cosméticas", value: 40, detail: "Arquitetura e letreiros embelezam o ponto. Trazem um fluxo orgânico futuro, mas a recuperação real de caixa (Payback) demorará anos." }, 
+                            { label: "Motores operacionais", value: 100, detail: "Ferramentaria escalável acoplada diretamente em projetos já fechados. Produzirá resultados contínuos após o adimplemento da dívida." }
+                        ] 
+                    },
+                    { 
+                        id: "roi_spread", title: "Spread Eficaz (ROIC vs Dívida)", 
+                        options: [
+                            { label: "Destruidor (Lucro < Juros)", value: 0, detail: "Veneno puro. Sua rentabilidade média é inferior à SELIC do período. Economicamente inviável. A operação deve ser estancada hoje." }, 
+                            { label: "Neutro (Lucro = Juros)", value: 30, detail: "Corrida maluca de fim do dia. Suor enorme da equipe simplesmente empatando o placar contra os encargos assumidos." }, 
+                            { label: "Excedente Forte", value: 100, detail: "O retorno do investimento atinge múltiplas vezes o Custo Médio Ponderado. Crescimento hiper-financiado usando caixa e Risco de terceiros." }
+                        ] 
+                    }
+                ]
+            },
+            m6: {
+                id: 'm6', title: "Proporção da Garantia", tagline: "Loan-to-Value & Haircut Risco",
+                formulaMathjs: "100 - haircut_risk",
+                formulaLatex: "$$ LTV = \\frac{\\text{Expos.}}{\\text{Colat.} \\times (1 - \\htmlId{var-haircut_risk}{Hairc})} $$",
+                variables: { haircut_risk: null },
+                varDetails: {
+                    haircut_risk: {
+                        desc: "O Haircut e a Exposição Patrimonial Direta do Empresário PME vs Volume tomado emprestado da Financeira.",
+                        up: "Dissonância radical e Aposta Tudo-Ou-Nada. Comprometer imóveis das gerações anteriores ou contas pessoais cruciais no fomento de picos especulativos.",
+                        down: "Isolamento asséptico através da Alienação Fiduciária pura e aplicação de apólices governamentais em socorro (FGI PEAC e mecanismos de aval limpo)."
+                    }
+                },
+                refs: ["<strong>Merton, R. (1974)</strong>. <em>Pricing of Corporate Debt</em>."],
+                steps: [
+                    { 
+                        id: "haircut_risk", title: "Agressão ao Patrimônio", 
+                        options: [
+                            { label: "Bens Familiares Alienados", value: 100, detail: "A matriz familiar arriscada integralmente (Imóvel hipotecado). Se estourar uma pandemia local, ocorre desabrigamento dos donos da PME." }, 
+                            { label: "Recebíveis Engessados", value: 60, detail: "Todo recurso derivado de boletos e cartões das maquinetas é desviado preventivamente pelas financiadoras como calção antes mesmo do repasse." }, 
+                            { label: "Alienação Estrita do Bem", value: 0, detail: "Responsabilidade confinada e limitada legalmente. O chassi adquirido em financiamento constitui o limite único passível de recuperação (Default não fatal)." }
+                        ] 
+                    }
+                ]
+            },
+            m7: {
+                id: 'm7', title: "Resistência a Choque", tagline: "Cash Flow at Risk (Limiar)",
+                formulaMathjs: "margin_of_safety",
+                formulaLatex: "$$ CFaR = \\mu_{CF} - Z_{\\alpha} \\cdot \\htmlId{var-margin_of_safety}{\\sigma_{CF}} > 0 $$",
+                variables: { margin_of_safety: null },
+                varDetails: {
+                    margin_of_safety: {
+                        desc: "Margem Estofadora e o Desvio Padrão Admissível antes do Break-Even sangrar para perdas absolutas diárias.",
+                        up: "Forte Antifragilidade nos contratos executados. A Margem Bruta inicial já precifica incertezas. Variações drásticas pontuais não chegam no chão de fábrica.",
+                        down: "Operação Vidraça Fina. Se um caminhão estourar um pneu no pátio, ou imposto derivar, esse mero contratempo limpa toda a previsão otimista contida nas planilhas do Chief of Staff."
+                    }
+                },
+                refs: ["<strong>Jorion, P. (2007)</strong>. <em>Value at Risk</em>."],
+                steps: [
+                    { 
+                        id: "margin_of_safety", title: "Margem Defensiva Contratual", 
+                        options: [
+                            { label: "Estrutura Quebradiça", value: 10, detail: "O preço cobrado é estreito demais. Qualquer centavo a mais pago nos combustíveis ou fretes detona por completo os bolsões de lucro previstos da semana." }, 
+                            { label: "Tensionamento de Pagamentos", value: 40, detail: "Você sairá exausto de um aperto, renegociará duplicatas de fornecedores por piedade deles, e sobreviverá apertadamente pagando juros eventuais." }, 
+                            { label: "Aço Inoxidável (Blindagem)", value: 100, detail: "Estatística a favor do gestor. Formação de repasse elástico contido diretamente em contrato ou margens polpudas superiores operando independentemente das variações externas imprevistas." }
+                        ] 
+                    }
+                ]
+            },
+            m8: {
+                id: 'm8', title: "Capacidade Residual", tagline: "Geração Efetiva do Valor Terminal",
+                formulaMathjs: "residual_value",
+                formulaLatex: "$$ V = \\sum \\frac{FCF_t}{(1+k)^t} + \\frac{\\htmlId{var-residual_value}{TV}}{(1+k)^N} $$",
+                variables: { residual_value: null },
+                varDetails: {
+                    residual_value: {
+                        desc: "Escore Final Terminal Value (TV). Quando a poeira baixa o que sobra e finca raízes de crescimento material interno e palpável.",
+                        up: "Riqueza decantada nas fundações. Processos que não precisam ser recriados do absoluto zero, bases de leads maduras e ferramentas agora da PME perpetuamente.",
+                        down: "Bicicleta do Hamster Executivo. Girou fortunas impressionantes na conta e recolheu imposto monumental, enquanto no dia primeiro tudo volta ao buraco inerte de onde começou a labuta extenuante."
+                    }
+                },
+                refs: ["<strong>Damodaran, A. (2012)</strong>. <em>Investment Valuation</em>."],
+                steps: [
+                    { 
+                        id: "residual_value", title: "Balanço Final de Estrutura", 
+                        options: [
+                            { label: "Corrida sem Legado", value: 0, detail: "Atividade girou freneticamente pelo mês apenas para abastecer contas. Cansou os ossos da liderança e encerrou a janela temporal com exato 0 a mais nas potências da firma." }, 
+                            { label: "Consumo Pessoal Tóxico", value: 30, detail: "Deu lucratividade forte e verdadeira, entretanto puncionada irresponsavelmente pelos empresários de antemão sem guardar parcelas mínimas de capital protetivo." }, 
+                            { label: "Cristalização Patrimonial Permanente", value: 100, detail: "Evolução e Fuga pela Lateral cumpridas perfeitamente. Sobrou lastro livre e limpo, ou em tecnologias escaláveis recém desimpedidas e domínios imensuráveis de clientes contínuos a custo de manutenção marginal zerado." }
+                        ] 
+                    }
+                ]
+            }
+        };
+
+        let appState = {
+            scores: { m1: null, m2: null, m3: null, m4: null, m5: null, m6: null, m7: null, m8: null },
+            activeModal: null,
+            currentModalVars: {},
+            activeSuperVar: null,
+            pendingEvaluations: 0
+        };
+
+        // --- 2. INICIALIZAÇÃO DO HUD GLOBAL ---
+        function initDashboard() {
+            const grid = document.getElementById('calculators-grid');
+            grid.innerHTML = '';
+            
+            Object.values(modelData).forEach(model => {
+                const score = appState.scores[model.id];
+                const hasScore = score !== null;
+                const scoreDisplay = hasScore ? `${Math.round(score)}%` : '--.-%';
+                
+                let ledClass = 'text-gray-600';
+                if (hasScore) {
+                    if (score >= 80) ledClass = 'text-led-cyan font-bold';
+                    else if (score >= 50) ledClass = 'text-yellow-500 font-bold';
+                    else ledClass = 'text-red-500 font-bold';
+                }
+
+                grid.innerHTML += `
+                    <div class="panel-groove p-5 flex flex-col justify-between h-48 relative overflow-hidden group border border-gray-800 hover:border-gray-500 transition-colors">
+                        <div class="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gray-600 shadow-inner"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-300 uppercase tracking-widest border-b border-gray-700 pb-1 mb-2">${model.title}</h4>
+                            <p class="text-[9px] text-gray-500 font-mono uppercase truncate">${model.tagline}</p>
+                        </div>
+                        <div class="flex items-end justify-between mt-4">
+                            <div class="led-screen px-3 py-1 w-24 text-center ${ledClass} font-mono text-lg tracking-wider">
+                                ${scoreDisplay}
+                            </div>
+                            <button onclick="openModal('${model.id}')" class="mech-btn px-4 py-2 text-xs">
+                                INICIAR <i class="fa-solid fa-crosshairs ml-1 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            updateGlobalKPIs();
+        }
+
+        function updateGlobalKPIs() {
+            const scores = Object.values(appState.scores).filter(s => s !== null);
+            const disp = document.getElementById('global-score-text');
+            const pulse = document.getElementById('header-pulse');
+            
+            if(scores.length === 0) {
+                disp.innerText = '--.-';
+                disp.style.opacity = '0.4';
+                pulse.className = "w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_#f00]";
+            } else {
+                let globalScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+                disp.innerText = globalScore.toFixed(1); 
+                disp.style.opacity = '1';
+                
+                if(globalScore >= 80) { pulse.className = "w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_#0f0]"; }
+                else if(globalScore >= 50) { pulse.className = "w-3 h-3 rounded-full bg-yellow-500 shadow-[0_0_8px_#ff0]"; }
+                else { pulse.className = "w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#f00]"; }
+            }
+        }
+
+        // --- 3. AUTO-ESCALAMENTO DO MOTOR LATEX (KaTeX) ---
+        function scaleMathToFit() {
+            const board = document.getElementById('pinball-board');
+            const mathArea = document.getElementById('math-formula-display');
+            const katexDisplay = mathArea.querySelector('.katex-display');
+            
+            if(!katexDisplay || !board) return;
+
+            mathArea.style.transform = 'scale(1)';
+            
+            const boardWidth = board.clientWidth - 40; 
+            const mathWidth = katexDisplay.scrollWidth;
+
+            if (mathWidth > boardWidth) {
+                const ratio = boardWidth / mathWidth;
+                mathArea.style.transform = `scale(${ratio})`;
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if(document.getElementById('calculator-modal').classList.contains('active')) {
+                scaleMathToFit();
+            }
+        });
+
+        function openModal(modelId) {
+            appState.activeModal = modelId;
+            const model = modelData[modelId];
+            
+            appState.currentModalVars = {};
+            Object.keys(model.variables).forEach(k => appState.currentModalVars[k] = null);
+
+            document.getElementById('modal-title').innerText = model.title;
+            document.getElementById('modal-academic').innerText = model.tagline;
+            
+            const mathContainer = document.getElementById('math-formula-display');
+            mathContainer.innerHTML = model.formulaLatex;
+            renderMathInElement(mathContainer, { 
+                delimiters: [{left: "$$", right: "$$", display: true}], 
+                throwOnError: false, trust: true, strict: false 
+            });
+
+            setTimeout(() => {
+                scaleMathToFit();
+                
+                Object.keys(model.variables).forEach(k => {
+                    const el = document.getElementById(`var-${k}`);
+                    if(el) {
+                        el.classList.add('math-target-var');
+                        el.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openSuperEditor(k, e);
+                        });
+                    }
+                });
+            }, 50);
+
+            const refContainer = document.getElementById('modal-references');
+            refContainer.innerHTML = '';
+            model.refs.forEach(ref => { refContainer.innerHTML += `<div class="academic-ref">${ref}</div>`; });
+
+            const scoreContainer = document.getElementById('modal-live-score-container');
+            const scoreDisplay = document.getElementById('modal-live-score');
+            scoreDisplay.innerText = '--.-%';
+            scoreContainer.className = "retro-lcd-display h-20 mb-6 opacity-40"; 
+            document.getElementById('btn-save-model').disabled = true;
+
+            renderHardwareInputs(model);
+            updateMathEngineDisplay();
+
+            const modal = document.getElementById('calculator-modal');
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('calculator-modal');
+            modal.classList.remove('active');
+            modal.classList.add('opacity-0');
+            closeSuperEditor();
+            hideOptionTooltip(); 
+            setTimeout(() => modal.classList.add('invisible'), 200);
+            appState.activeModal = null;
+        }
+
+        // --- 4. CONSOLE DE TELEMETRIA NA EQUAÇÃO (UNIFICADO) ---
+        function openSuperEditor(varKey, event) {
+            sfxOpenConsole();
+            appState.activeSuperVar = varKey;
+            const model = modelData[appState.activeModal];
+            const details = model.varDetails[varKey];
+            
+            const panel = document.getElementById('super-var-editor');
+            document.getElementById('super-var-title').innerText = varKey.toUpperCase();
+            document.getElementById('super-var-desc').innerText = details.desc;
+            document.getElementById('super-var-up-effect').innerText = details.up;
+            document.getElementById('super-var-down-effect').innerText = details.down;
+            
+            let currentVal = appState.currentModalVars[varKey] !== null ? appState.currentModalVars[varKey] : 0;
+            document.getElementById('super-var-lcd').innerText = currentVal;
+            document.getElementById('super-var-manual').value = currentVal;
+            document.getElementById('super-var-manual').classList.add('hidden');
+            
+            const rect = event.target.getBoundingClientRect();
+            let topPos = rect.bottom + 20;
+            let leftPos = rect.left - 180;
+            
+            if(leftPos < 20) leftPos = 20;
+            if(leftPos + 360 > window.innerWidth) leftPos = window.innerWidth - 380;
+            if(topPos + 400 > window.innerHeight) topPos = rect.top - 420;
+            
+            panel.style.top = `${topPos}px`;
+            panel.style.left = `${leftPos}px`;
+            panel.classList.add('active');
+        }
+
+        function closeSuperEditor() {
+            const panel = document.getElementById('super-var-editor');
+            panel.classList.remove('active');
+            appState.activeSuperVar = null;
+        }
+
+        function adjustSuperVar(amount) {
+            sfxDial();
+            let lcd = document.getElementById('super-var-lcd');
+            let current = parseInt(lcd.innerText);
+            let newVal = current + amount;
+            
+            const panelObj = document.querySelector('.super-dial-container');
+            if(amount > 0) panelObj.style.boxShadow = "inset 0 0 20px rgba(0,255,255,0.5)";
+            else panelObj.style.boxShadow = "inset 0 0 20px rgba(255,191,0,0.5)";
+            setTimeout(() => panelObj.style.boxShadow = "inset 0 5px 10px rgba(0,0,0,0.8)", 150);
+
+            lcd.innerText = newVal;
+            document.getElementById('super-var-manual').value = newVal;
+        }
+
+        function syncManualInput() {
+            let val = document.getElementById('super-var-manual').value;
+            if(val !== '') document.getElementById('super-var-lcd').innerText = val;
+        }
+
+        function fireSuperVar(event) {
+            if(!appState.activeSuperVar) return;
+            const finalValue = parseFloat(document.getElementById('super-var-lcd').innerText);
+            selectVariable(appState.activeSuperVar, finalValue, event);
+            closeSuperEditor();
+        }
+
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('super-var-editor');
+            if (panel.classList.contains('active') && !panel.contains(e.target) && !e.target.classList.contains('math-target-var') && !e.target.classList.contains('editable-var')) {
+                closeSuperEditor();
+            }
+        });
+
+        // --- 5. INTERAÇÃO TÁTIL, BALÍSTICA E HOVER (INSIGHTS) ---
+        function renderHardwareInputs(model) {
+            const inputArea = document.getElementById('modal-input-area');
+            inputArea.innerHTML = '';
+
+            model.steps.forEach((step, stepIndex) => {
+                let optionsHtml = '';
+                step.options.forEach((opt, optIndex) => {
+                    optionsHtml += `
+                        <div onclick="selectVariable('${step.id}', ${opt.value}, event)" 
+                             onmouseenter="showOptionTooltip(event, '${model.id}', ${stepIndex}, ${optIndex})"
+                             onmouseleave="hideOptionTooltip()"
+                             id="opt-wrap-${step.id}-${opt.value}"
+                             class="opt-wrap-${step.id} flex items-center gap-3 p-3 bg-[#111] rounded border border-gray-800 hover:border-gray-500 cursor-pointer transition-colors mb-2 relative overflow-hidden">
+                            <div id="led-${step.id}-${opt.value}" class="led-indicator-${step.id} w-3 h-3 rounded-full bg-gray-700 shadow-inner border border-black z-10"></div>
+                            <div class="px-2 py-1 bg-gradient-to-b from-[#444] to-[#222] border border-black rounded text-[10px] font-mono text-gray-300 font-bold shadow-lg min-w-[36px] text-center z-10">
+                                ${opt.value}
+                            </div>
+                            <span class="text-xs text-gray-400 flex-1 font-semibold leading-tight z-10">${opt.label}</span>
+                        </div>
+                    `;
+                });
+
+                inputArea.innerHTML += `
+                    <div class="mb-6 relative">
+                        <div class="flex items-center justify-between mb-3 border-l-2 border-led-cyan pl-2">
+                            <h4 class="text-sm font-bold text-gray-200 tracking-wider uppercase">${step.title}</h4>
+                        </div>
+                        <div>${optionsHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // TOOLTIP DE DETALHES DE OPÇÃO (PME Visceral)
+        function showOptionTooltip(event, modelId, stepIndex, optIndex) {
+            const detailText = modelData[modelId].steps[stepIndex].options[optIndex].detail;
+            if(!detailText) return;
+
+            const panel = document.getElementById('option-insight-tooltip');
+            document.getElementById('option-insight-text').innerText = detailText;
+
+            panel.style.display = 'block'; 
+            void panel.offsetWidth; 
+
+            const rect = event.currentTarget.getBoundingClientRect();
+            let topPos = rect.bottom + 10;
+            let leftPos = rect.left + 20;
+
+            if (topPos + panel.offsetHeight > window.innerHeight) {
+                topPos = rect.top - panel.offsetHeight - 10;
+            }
+            if (leftPos + panel.offsetWidth > window.innerWidth) {
+                leftPos = window.innerWidth - panel.offsetWidth - 10;
+            }
+
+            panel.style.top = `${topPos}px`;
+            panel.style.left = `${leftPos}px`;
+            panel.classList.add('active');
+        }
+
+        function hideOptionTooltip() {
+            const panel = document.getElementById('option-insight-tooltip');
+            panel.classList.remove('active');
+            setTimeout(() => { if(!panel.classList.contains('active')) panel.style.display = 'none'; }, 200);
+        }
+
+        function selectVariable(varId, value, sourceEvent = null) {
+            appState.currentModalVars[varId] = value;
+            
+            const leds = document.querySelectorAll(`.led-indicator-${varId}`);
+            leds.forEach(led => { led.className = `led-indicator-${varId} w-3 h-3 rounded-full bg-gray-700 shadow-inner border border-black`; });
+            const wraps = document.querySelectorAll(`.opt-wrap-${varId}`);
+            wraps.forEach(wrap => { wrap.className = `opt-wrap-${varId} flex items-center gap-3 p-3 bg-[#111] rounded border border-gray-800 hover:border-gray-500 cursor-pointer transition-colors mb-2 relative overflow-hidden`; });
+
+            const exactWrap = document.getElementById(`opt-wrap-${varId}-${value}`);
+            if(exactWrap) {
+                document.getElementById(`led-${varId}-${value}`).className = `led-indicator-${varId} w-3 h-3 rounded-full bg-led-cyan shadow-[0_0_8px_#00ffff] border border-transparent`;
+                exactWrap.classList.remove('border-gray-800', 'bg-[#111]');
+                exactWrap.classList.add('border-led-cyan', 'bg-[#1a252c]');
+                
+                const ripple = document.createElement('div');
+                ripple.className = "absolute inset-0 bg-led-cyan opacity-20 animate-ping";
+                exactWrap.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 500);
+            }
+
+            updateMathEngineDisplay();
+            fireProjectile(varId, value, sourceEvent);
+        }
+
+        function fireProjectile(varId, value, sourceEvent) {
+            const targetEl = document.getElementById(`var-${varId}`);
+            if(!targetEl) {
+                evaluateModel();
+                return;
+            }
+
+            sfxShoot();
+            appState.pendingEvaluations++;
+
+            let startX = window.innerWidth / 2;
+            let startY = window.innerHeight / 2;
+            if (sourceEvent && sourceEvent.target) {
+                const btnRect = sourceEvent.currentTarget ? sourceEvent.currentTarget.getBoundingClientRect() : sourceEvent.target.getBoundingClientRect();
+                startX = btnRect.left + (btnRect.width / 2);
+                startY = btnRect.top + (btnRect.height / 2);
+            }
+
+            const targetRect = targetEl.getBoundingClientRect();
+            const endX = targetRect.left + (targetRect.width / 2);
+            const endY = targetRect.top + (targetRect.height / 2);
+
+            const proj = document.createElement('div');
+            proj.className = 'value-projectile';
+            proj.innerText = value;
+            document.body.appendChild(proj);
+
+            proj.style.left = `${startX}px`;
+            proj.style.top = `${startY}px`;
+
+            void proj.offsetWidth; 
+
+            proj.style.left = `${endX}px`;
+            proj.style.top = `${endY}px`;
+            proj.style.transform = `translate(-50%, -50%) scale(0.3) rotate(360deg)`;
+
+            setTimeout(() => {
+                sfxHit();
+                proj.remove();
+                
+                targetEl.classList.remove('hit');
+                void targetEl.offsetWidth; 
+                targetEl.classList.add('hit');
+                
+                appState.pendingEvaluations--;
+                if(appState.pendingEvaluations === 0) {
+                    evaluateModel();
+                }
+            }, 400);
+        }
+
+        function updateMathEngineDisplay() {
+            const container = document.getElementById('math-scope-display');
+            let html = `<div class="font-mono">{\n`;
+            for (const [key, val] of Object.entries(appState.currentModalVars)) {
+                let displayVal = val === null ? '<span class="text-gray-600">--</span>' : val;
+                html += `  <span class="text-gray-400">"${key}"</span>: <span class="editable-var" onclick="openSuperEditor('${key}', event)">${displayVal}</span>,\n`;
+            }
+            html = html.replace(/,\n$/, '\n'); 
+            html += `}</div>`;
+            container.innerHTML = html;
+        }
+
+        // MOTOR DE RECÁLCULO E DOPAMINA DE RESULTADO
+        function evaluateModel() {
+            if(appState.pendingEvaluations > 0) return;
+
+            const model = modelData[appState.activeModal];
+            const isComplete = Object.values(appState.currentModalVars).every(val => val !== null);
+            
+            const scoreContainer = document.getElementById('modal-live-score-container');
+            const scoreDisplay = document.getElementById('modal-live-score');
+            
+            if (isComplete) {
+                try {
+                    const result = math.evaluate(model.formulaMathjs, appState.currentModalVars);
+                    const finalScore = Math.max(0, Math.min(100, result)); 
+
+                    if(finalScore === 100) scoreDisplay.innerText = '100%'; 
+                    else scoreDisplay.innerText = finalScore.toFixed(1) + '%';
+                    
+                    scoreContainer.className = "retro-lcd-display h-20 mb-6"; 
+                    
+                    if (finalScore >= 80) {
+                        scoreContainer.classList.add('lcd-overdrive');
+                        sfxOverdrive();
+                    } else if (finalScore >= 40) {
+                        scoreContainer.classList.add('lcd-warning');
+                        sfxWarning();
+                    } else {
+                        scoreContainer.classList.add('lcd-crash');
+                        sfxCrash();
+                    }
+
+                    document.getElementById('btn-save-model').disabled = false;
+                } catch (e) {
+                    console.error("Erro no Motor Matemático:", e);
+                    scoreDisplay.innerText = "ERR";
+                    scoreContainer.className = "retro-lcd-display h-20 mb-6 lcd-crash";
+                }
+            }
+        }
+
+        function saveCurrentModel() {
+            const model = modelData[appState.activeModal];
+            const result = math.evaluate(model.formulaMathjs, appState.currentModalVars);
+            appState.scores[appState.activeModal] = Math.max(0, Math.min(100, result));
+            sfxSuccess();
+            closeModal();
+            initDashboard();
+        }
+
+        function resetDashboard() {
+            Object.keys(appState.scores).forEach(k => appState.scores[k] = null);
+            initDashboard();
+        }
+
+        // Efeito Magnético de Inclinação no HUD do Pinball
+        function tiltBoard(e) {
+            const board = document.getElementById('pinball-board');
+            const rect = board.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -5;
+            const rotateY = ((x - centerX) / centerX) * 5;
+            board.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        }
+        function resetBoardTilt() {
+            document.getElementById('pinball-board').style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+        }
+
+        window.onload = initDashboard;
+    </script>
+
+</body></html>
